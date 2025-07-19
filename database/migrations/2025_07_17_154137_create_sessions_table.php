@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('sessions_attendance', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('class_id')->constrained('class');
             $table->date('session_date');

@@ -1,16 +1,16 @@
-import AppLayout from '@/layouts/app-layout';
+import AppLayout from '@/layouts/app-layout'; // Asumsi ini layout admin
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard User',
-        href: '/dashboard',
+        title: 'Dashboard Admin',
+        href: '/admin/dashboard', // Sesuaikan href
     },
 ];
 
-export default function UserDashboard() {
+export default function AdminDashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />

@@ -26,6 +26,10 @@ type ProfileForm = {
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
+    const profileRoute = auth.guard === 'admin'
+        ? 'admin.settings.profile.update'
+        : 'profile.update';
+
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
@@ -34,8 +38,9 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
-        patch(route('profile.update'), {
+        // console.log('asdasdsada');
+        
+        patch(route(profileRoute), {
             preserveScroll: true,
         });
     };

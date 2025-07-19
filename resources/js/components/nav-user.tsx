@@ -11,6 +11,10 @@ export function NavUser() {
     const { auth } = usePage<SharedData>().props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
+    const logoutRoute = auth.guard === 'admin' ? 'admin.logout' : 'logout';
+    const profileRoute = auth.guard === 'admin' ? 'admin.settings.profile.edit' : 'profile.edit';
+    // console.log(auth.user);
+    
 
     return (
         <SidebarMenu>
@@ -27,7 +31,7 @@ export function NavUser() {
                         align="end"
                         side={isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'}
                     >
-                        <UserMenuContent user={auth.user} />
+                        <UserMenuContent user={auth.user} logoutRouteName={logoutRoute} profileRouteName={profileRoute}/>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

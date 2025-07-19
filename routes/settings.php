@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Settings\ProfileAdminController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -18,4 +19,19 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/appearance');
     })->name('appearance');
+});
+
+
+Route::prefix('admin/settings')
+    ->middleware('auth.group:admin')
+    ->name('admin.settings.')
+    ->group(function () {
+        
+        Route::redirect('/', '/admin/settings/profile');
+
+        Route::get('/profile', [ProfileAdminController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileAdminController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileAdminController::class, 'destroy'])->name('profile.destroy');
+
+        // Rute pengaturan password & appearance untuk admin bisa ditambahkan di sini...
 });

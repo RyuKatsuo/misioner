@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_verifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('token')->unique();
-            $table->boolean('active')->default(true);
+            $table->boolean('isActive')->default(true);
             $table->dateTime('expires_at');
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();

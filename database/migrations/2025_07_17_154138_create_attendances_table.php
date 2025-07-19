@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('session_id')->constrained('sessions')->onDelete('cascade');
+            $table->foreignUuid('session_id')->constrained('sessions_attendance')->onDelete('cascade');
             $table->foreignUuid('children_id')->constrained('childrens')->onDelete('cascade');
             $table->enum('status', ['Present', 'Late', 'Excused', 'Absent']);
             $table->timestamps();

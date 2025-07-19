@@ -3,26 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: '/settings/profile',
-        icon: null,
-    },
-    {
-        title: 'Password',
-        href: '/settings/password',
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: '/settings/appearance',
-        icon: null,
-    },
-];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     // When server-side rendering, we only render the layout on the client...
@@ -31,6 +14,29 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     }
 
     const currentPath = window.location.pathname;
+
+    const { auth } = usePage<SharedData>().props;
+    const profileRoute = auth.guard === 'admin'
+        ? route('admin.settings.profile.edit')
+        : route('profile.edit');
+
+    const sidebarNavItems: NavItem[] = [
+        {
+            title: 'Profile',
+            href: profileRoute,
+            icon: null,
+        },
+        {
+            title: 'Password',
+            href: '/settings/password',
+            icon: null,
+        },
+        {
+            title: 'Appearance',
+            href: '/settings/appearance',
+            icon: null,
+        },
+    ];
 
     return (
         <div className="px-4 py-6">
