@@ -19,7 +19,7 @@ export interface NavItem {
     title: string;
     href: string;
     icon?: LucideIcon | null;
-    isActive?: boolean;
+    is_active?: boolean;
 }
 
 export interface SharedData {
@@ -41,3 +41,45 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export type Period = {
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
+    is_active: boolean;
+};
+
+export type ClassModel = {
+    id: string;
+    period_id: string;
+    class_name: string;
+    period?: Period; // Relasi (opsional)
+};
+
+export type PaginatedResponse<T> = {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+    };
+    // Laravel 11/12 paginator menyertakan ini di level atas
+    first_page_url: string;
+    last_page_url: string;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    from: number;
+    to: number;
+    total: number;
+};

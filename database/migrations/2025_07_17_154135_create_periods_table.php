@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('periods', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name'); // Contoh: "Tahun Ajaran 2025/2026"
+            $table->string('name');
             $table->date('start_date');
             $table->date('end_date');
-            $table->boolean('isActive')->default(true);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone_number', 15);
             $table->text('address');
             $table->enum('gender', ['Male', 'Female']);
-            $table->boolean('isActive')->default(true);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

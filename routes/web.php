@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\admin\LoginAdminController;
+use App\Http\Controllers\admin\PeriodController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +30,23 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     Route::get('/dashboard', function (){
         return Inertia::render('admin/dashboard');
     })->name('dashboard');
+
+    Route::controller(PeriodController::class)->group(function(){
+        Route::get('/periods', 'index')->name('period.index');
+        Route::get('/periods/create', 'create')->name('period.create');
+        Route::post('/periods', 'store')->name('period.store');
+        Route::get('/periods/{period}/edit', 'edit')->name('period.edit');
+        Route::put('/periods/{period}', 'update')->name('period.update');
+    });
+
+    Route::controller(ClassController::class)->group(function(){
+        Route::get('/classes', 'index')->name('class.index');
+        Route::get('/classes/create', 'create')->name('class.create');
+        Route::post('/classes', 'store')->name('class.store');
+        Route::get('/classes/{class}/edit', 'edit')->name('class.edit');
+        Route::put('/classes/{class}', 'update')->name('class.update');
+        Route::get('/classes/{class}', 'show')->name('class.show');
+    });
 });
 
 require __DIR__.'/settings.php';

@@ -16,16 +16,16 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-                $communityId = DB::table('communities')->first()?->id;
+        $communityId = DB::table('communities')->first()?->id;
 
         User::create([
             'id' => Str::uuid(),
             'name' => 'Ananda Andreas',
             'email' => 'ananda@example.com',
-            'password' => Hash::make('password123'), // jangan lupa di-hash
+            'password' => Hash::make('qweqweqwe'), // jangan lupa di-hash
             'phone_number' => '081234567890',
             'gender' => 'Male',
-            'isActive' => true,
+            'is_active' => true,
             'community_id' => $communityId,
             'date_of_birth' => '2000-01-01',
             'outside_community' => false,

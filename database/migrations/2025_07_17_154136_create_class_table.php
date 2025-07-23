@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('special_needs_status')->default(false);
             $table->text('special_needs_description')->nullable();
             $table->enum('gender', ['Male', 'Female']);
-            $table->boolean('isActive')->default(false);
+            $table->boolean('is_active')->default(false);
             $table->foreignUuid('parent_id')->constrained('users');
             $table->string('qr_code', 8)->nullable();
             $table->foreignUuid('class_id')->nullable()->constrained('class');

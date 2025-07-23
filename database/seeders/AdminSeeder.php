@@ -17,8 +17,8 @@ class AdminSeeder extends Seeder
     {
         Admin::create([
 
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => "ananda admin",
+            'email' => "anandaandreas11@gmail.com",
             'password' => Hash::make('qweqweqwe'),
             'phone_number'=> fake()->phoneNumber(),
             'address' => fake()->address(),

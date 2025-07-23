@@ -21,6 +21,11 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Period Page',
+        href: route('admin.period.index'),
+        icon: LayoutGrid,
+    },
 ];
 
 

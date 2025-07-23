@@ -37,7 +37,7 @@ class Admin extends Authenticatable
         'phone_number',
         'address',
         'gender',
-        'isActive',
+        'is_active',
     ];
 
     /**
@@ -57,7 +57,7 @@ class Admin extends Authenticatable
      */
     protected $casts = [
         'password' => 'hashed',
-        'isActive' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**

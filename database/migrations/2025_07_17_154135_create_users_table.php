@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone_number', 15);
             $table->enum('gender', ['Male', 'Female']);
-            $table->boolean('isActive')->default(false);
+            $table->boolean('is_active')->default(false);
             $table->foreignUuid('community_id')->nullable()->constrained('communities')->onDelete('set null');
             $table->date('date_of_birth');
             $table->boolean('outside_community')->nullable();

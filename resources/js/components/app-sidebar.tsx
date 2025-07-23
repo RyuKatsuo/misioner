@@ -21,6 +21,11 @@ export function AppSidebar() {
             href: dashboardRoute,
             icon: LayoutGrid,
         },
+        {
+            title: 'Period Page',
+            href: route('admin.period.index'),
+            icon: LayoutGrid,
+        },
     ];
     return (
         <Sidebar collapsible="icon" variant="inset">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -15,13 +16,12 @@ class User extends Authenticatable
     public $incrementing = false;
 
     protected $fillable = [
-        'id',
         'name',
         'email',
         'password',
         'phone_number',
         'gender',
-        'isActive',
+        'is_active',
         'community_id',
         'date_of_birth',
         'outside_community',
@@ -36,20 +36,25 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'isActive' => 'boolean',
+        'is_active' => 'boolean',
         'outside_community' => 'boolean',
         'email_verified_at' => 'datetime',
         'date_of_birth' => 'date',
     ];
 
     // UUID otomatis jika belum ada saat creating
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::creating(function ($user) {
-            if (empty($user->id)) {
-                $user->id = (string) Str::uuid();
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = Str::uuid();
             }
         });
+    }
+
+    public function childrens(): HasMany
+    {
+        return $this->hasMany(Child::class, 'parent_id');
     }
 
     // Relasi ke Community
