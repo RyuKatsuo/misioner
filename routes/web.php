@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ChildrenAdminController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\admin\LoginAdminController;
 use App\Http\Controllers\admin\PeriodController;
@@ -46,6 +47,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::get('/classes/{class}/edit', 'edit')->name('class.edit');
         Route::put('/classes/{class}', 'update')->name('class.update');
         Route::get('/classes/{class}', 'show')->name('class.show');
+
+        Route::get('/classes/{class}/enroll', 'showEnrollForm')->name('class.enroll.form');
+        Route::post('/classes/{class}/enroll', 'enroll')->name('class.enroll.store');
+    });
+
+    Route::controller(ChildrenAdminController::class)->group(function() {
+        Route::get('/childrens', 'index')->name('children.index');
     });
 });
 

@@ -52,7 +52,10 @@ export function DataTable<TData, TValue>({
         const timeout = setTimeout(() => {
             // Hanya kirim request jika nilai pencarian berubah
             if (searchValue !== (filters.search || '')) {
-                router.get(route(searchRouteName), { search: searchValue }, {
+                router.get(route(searchRouteName), { 
+                    search: searchValue,
+                    status: filters.status
+                 }, {
                     preserveState: true,
                     replace: true,
                 });

@@ -57,6 +57,25 @@ export type ClassModel = {
     period?: Period; // Relasi (opsional)
 };
 
+export type Graduate = {
+    id: string;
+    children_id: string;
+    graduated_at: string;
+};
+
+export type Child = {
+    id: string;
+    name: string;
+    active: boolean;
+    parent?: User;
+    gender: string;
+    classModel?: ClassModel;
+    graduate?: Graduate; // <-- Tambahkan ini
+    is_active: boolean;
+    special_needs_status: boolean;
+    special_needs_description?: string;
+};
+
 export type PaginatedResponse<T> = {
     data: T[];
     links: {

@@ -22,7 +22,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Period Page',
+        title: 'Management Period & Class',
         href: route('admin.period.index'),
         icon: LayoutGrid,
     },

@@ -4,6 +4,8 @@ import { Head, Link } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
 // Tambahkan properti hasil perhitungan ke tipe ClassModel
 interface ClassWithStats extends ClassModel {
@@ -11,6 +13,8 @@ interface ClassWithStats extends ClassModel {
     total_boys: number;
     total_girls: number;
     total_special_needs: number;
+    attendance_count: number;
+    total_score: number;
     childrens: Child[]; // Pastikan relasi anak ada
 }
 
@@ -60,14 +64,26 @@ export default function ShowClass({ class: classData }: Props) {
 
                 {/* Tabel Daftar Anak */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Children List</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Children List</CardTitle>
+                            <CardDescription>List of children enrolled in this class.</CardDescription>
+                        </div>
+                        <Link href={route('admin.class.enroll.form', classData.id)}>
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Enroll Child
+                            </Button>
+                        </Link>
                     </CardHeader>
                     <CardContent>
                         <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
+                                    <TableHead>Total Attendance</TableHead>
+                                    <TableHead>Total Score</TableHead>
+                                    <TableHead>Gender</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Special Needs</TableHead>
                                 </TableRow>
@@ -77,6 +93,15 @@ export default function ShowClass({ class: classData }: Props) {
                                     classData.childrens.map((child) => (
                                         <TableRow key={child.id}>
                                             <TableCell className="font-medium">{child.name}</TableCell>
+                                            <TableCell>
+                                                <p>{child.attendance_count}</p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p>{child.total_score}</p>
+                                            </TableCell>
+                                            <TableCell>
+                                                <p>{child.gender}</p>
+                                            </TableCell>
                                             <TableCell>
                                                 <Badge variant={child.is_active ? 'default' : 'secondary'}>
                                                     {child.is_active ? 'Active' : 'Inactive'}

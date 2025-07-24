@@ -22,8 +22,13 @@ export function AppSidebar() {
             icon: LayoutGrid,
         },
         {
-            title: 'Period Page',
+            title: 'Management Period & Class',
             href: route('admin.period.index'),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Management Childrens',
+            href: route('admin.children.index'),
             icon: LayoutGrid,
         },
     ];
