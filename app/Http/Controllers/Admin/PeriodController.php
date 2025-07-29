@@ -67,4 +67,10 @@ class PeriodController extends Controller
 
         return to_route('admin.period.index')->with('success', 'Period updated successfully.');
     }
+
+    public function destroy(Period $period): RedirectResponse
+    {
+        $period->delete();
+        return to_route('admin.period.index')->with('success', 'Period has been deleted.');
+    }
 }

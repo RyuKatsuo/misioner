@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\EnrollChildrenRequest;
+use App\Http\Controllers\Controller;    
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
-use App\Models\Child;
 use App\Models\ClassModel;
 use App\Models\Period;
 use Illuminate\Http\RedirectResponse;
@@ -88,40 +86,9 @@ class ClassController extends Controller
         ]);
     }
 
-    public function showEnrollForm(Request $request, ClassModel $class): Response
+    public function destroy(ClassModel $class): RedirectResponse
     {
-        $availableChildren = Child::with('parent')
-            ->where('is_active', false)
-            ->doesntHave('graduate')
-            ->when($request->input('search'), function ($q, $search) {
-                $q->where(function ($subq) use ($search) {
-                    $subq->where('name', 'ilike', "%{$search}%")
-                        ->orWhereHas('parent', function ($parentQuery) use ($search) {
-                            $parentQuery->where('name', 'ilike', "%{$search}%");
-                        });
-                });
-            })
-            ->latest()
-            ->get();
-
-        return Inertia::render('admin/class/enroll', [
-            'class' => $class,
-            'availableChildren' => $availableChildren,
-            'filters' => $request->only(['search'])
-        ]);
-    }
-
-    public function enroll(EnrollChildrenRequest $request, ClassModel $class): RedirectResponse
-    {
-        $validated = $request->validated();
-
-        foreach ($validated['children_ids'] as $childId){
-            $child = Child::find($childId);
-            $child->class_id = $class->id;
-            $child->is_active = true;
-            $child->save();
-        }
-
-        return to_route('admin.class.show', $class->id)->with('success', 'Children enroll successfully.');
+        $class->delete();
+        return to_route('admin.class.index')->with('success', 'Class has been deleted.');
     }
 }

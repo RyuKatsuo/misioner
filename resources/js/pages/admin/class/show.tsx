@@ -1,11 +1,15 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type ClassModel, type Child } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import * as React from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 // Tambahkan properti hasil perhitungan ke tipe ClassModel
 interface ClassWithStats extends ClassModel {
@@ -15,7 +19,7 @@ interface ClassWithStats extends ClassModel {
     total_special_needs: number;
     attendance_count: number;
     total_score: number;
-    childrens: Child[]; // Pastikan relasi anak ada
+    childrens: Child[];
 }
 
 interface Props {
@@ -28,6 +32,18 @@ export default function ShowClass({ class: classData }: Props) {
         { title: 'Classes', href: route('admin.class.index') },
         { title: 'Details', href: '#' },
     ];
+
+    const [childToUnenroll, setChildToUnenroll] = React.useState<Child | null>(null)
+
+    const handleUnenroll = () => {
+        if (!childToUnenroll) return
+
+        router.delete(route('admin.class.unenroll', {class: classData.id, child: childToUnenroll.id}), {
+            preserveScroll: true,
+            onSuccess: () => setChildToUnenroll(null),
+            onError: () => setChildToUnenroll(null)
+        });
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -86,6 +102,7 @@ export default function ShowClass({ class: classData }: Props) {
                                     <TableHead>Gender</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Special Needs</TableHead>
+                                    <TableHead className='text-right'>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -119,6 +136,25 @@ export default function ShowClass({ class: classData }: Props) {
                                                     'No'
                                                 )}
                                             </TableCell>
+                                            <TableCell className='text-right'>
+                                                <DropdownMenu modal={false}>
+                                                    <DropdownMenuTrigger>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Open menu</span>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem
+                                                            className="text-red-600 focus:text-red-600"
+                                                            onSelect={() => setChildToUnenroll(child)}
+                                                        >
+                                                            Remove from Class
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
@@ -133,6 +169,22 @@ export default function ShowClass({ class: classData }: Props) {
                     </CardContent>
                 </Card>
             </div>
+            <AlertDialog open={!!childToUnenroll} onOpenChange={(open) => !open && setChildToUnenroll(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will remove <span className="font-semibold text-foreground">{childToUnenroll?.name}</span> from the class and set their status to Inactive. This action does not delete the child's data.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleUnenroll} className="bg-red-600 hover:bg-red-700">
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

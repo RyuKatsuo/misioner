@@ -40,4 +40,13 @@ class ChildrenAdminController extends Controller
             'filters' => $request->only(['search', 'status'])
         ]);
     }
+
+    public function show(Child $child): Response
+    {
+        $child->load(['scores.task', 'parent', 'classModel.period', 'attendances']);
+        
+        return Inertia::render('admin/children/show', [
+            'child' => $child
+        ]);
+    }
 }

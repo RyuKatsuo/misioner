@@ -15,8 +15,8 @@ interface Props {
 }
 
 const managementNavItem = [
-    {href: route('admin.period.index'), label: 'Periods'},
-    {href: route('admin.class.index'), label: 'Classes'},
+    { href: route('admin.period.index'), label: 'Periods' },
+    { href: route('admin.class.index'), label: 'Classes' },
 ]
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -29,15 +29,15 @@ export default function ClassIndex({ classes, filters }: Props) {
     const handleDelete = () => {
         if (!classToDelete) return;
 
-        // router.delete(route('admin.period.destroy', periodToDelete.id), {
-        //     preserveScroll: false,
-        //     onSuccess: () => {
-        //         setPeriodToDelete(null);
-        //     },
-        //     onError: () => {
-        //         setPeriodToDelete(null);
-        //     },
-        // });
+        router.delete(route('admin.class.destroy', classToDelete.id), {
+            preserveScroll: false,
+            onSuccess: () => {
+                setClassesToDelete(null);
+            },
+            onError: () => {
+                setClassesToDelete(null);
+            },
+        });
     };
 
     const columns = React.useMemo(
@@ -78,25 +78,15 @@ export default function ClassIndex({ classes, filters }: Props) {
                             <AlertDialogDescription>
                                 This action cannot be undone. This will permanently delete the
                                 <span className="font-semibold text-foreground"> {classToDelete?.class_name} </span>
-                                role. Any users with this role will lose their assigned permissions.
+                                class. Any children in this class will be unassigned.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel asChild>
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
-                                >
-                                    Cancel
-                                </button>
+                            <AlertDialogCancel>
+                                Cancel
                             </AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                                <button
-                                    onClick={handleDelete}
-                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                                >
-                                    Continue
-                                </button>
+                            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                                Continue
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

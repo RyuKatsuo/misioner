@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
-class Period extends Model
+class Score extends Model
 {
     use HasFactory;
 
@@ -15,16 +15,13 @@ class Period extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'name',
-        'start_date',
-        'end_date',
-        'is_active',
+        'score',
+        'task_id',
+        'children_id',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'is_active' => 'boolean',
+        'score' => 'integer',
     ];
 
     protected static function booted(): void
@@ -34,19 +31,21 @@ class Period extends Model
                 $model->{$model->getKeyName()} = Str::uuid();
             }
         });
-
-        static::deleting(function (Period $period) {
-            foreach ($period->classes as $class) {
-                $class->delete();
-            }
-        });
     }
 
     /**
-     * Satu periode memiliki banyak kelas.
+     * Satu nilai milik satu anak.
      */
-    public function classes(): HasMany
+    public function child(): BelongsTo
     {
-        return $this->hasMany(ClassModel::class, 'period_id');
+        return $this->belongsTo(Child::class, 'children_id');
+    }
+
+    /**
+     * Satu nilai milik satu tugas.
+     */
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class);
     }
 }

@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::prefix('admin/settings')
-    ->middleware('auth.group:admin')
+    ->middleware('auth:admin')
     ->name('admin.settings.')
     ->group(function () {
         

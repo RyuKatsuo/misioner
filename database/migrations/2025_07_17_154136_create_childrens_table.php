@@ -27,7 +27,10 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->foreignUuid('parent_id')->constrained('users');
             $table->string('qr_code', 8)->nullable();
-            $table->foreignUuid('class_id')->nullable()->constrained('class');
+            $table->foreignUuid('class_id')
+                ->nullable()
+                ->constrained('class')
+                ->onDelete('set null');
             $table->timestamps();
         });
     }

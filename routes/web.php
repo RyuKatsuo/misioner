@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ChildrenAdminController;
 use App\Http\Controllers\Admin\ClassController;
+use App\Http\Controllers\Admin\EnrollClassController;
 use App\Http\Controllers\admin\LoginAdminController;
 use App\Http\Controllers\admin\PeriodController;
 use Illuminate\Support\Facades\Log;
@@ -38,6 +39,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::post('/periods', 'store')->name('period.store');
         Route::get('/periods/{period}/edit', 'edit')->name('period.edit');
         Route::put('/periods/{period}', 'update')->name('period.update');
+        Route::delete('/periods/{period}', 'destroy')->name('period.destroy');
     });
 
     Route::controller(ClassController::class)->group(function(){
@@ -47,13 +49,20 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::get('/classes/{class}/edit', 'edit')->name('class.edit');
         Route::put('/classes/{class}', 'update')->name('class.update');
         Route::get('/classes/{class}', 'show')->name('class.show');
+        Route::delete('/classes/{class}', 'destroy')->name('class.destroy');
 
+
+    });
+    
+    Route::controller(EnrollClassController::class)->group(function(){
         Route::get('/classes/{class}/enroll', 'showEnrollForm')->name('class.enroll.form');
         Route::post('/classes/{class}/enroll', 'enroll')->name('class.enroll.store');
+        Route::delete('/classes/{class}/unenroll/{child}', 'unenroll')->name('class.unenroll');
     });
 
     Route::controller(ChildrenAdminController::class)->group(function() {
         Route::get('/childrens', 'index')->name('children.index');
+        Route::get('/childrens/{child}', 'show')->name('children.show');
     });
 });
 

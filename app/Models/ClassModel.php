@@ -55,6 +55,16 @@ class ClassModel extends Model
                 $model->{$model->getKeyName()} = Str::uuid();
             }
         });
+
+         static::deleting(function (ClassModel $class) {
+            // Loop semua anak yang ada di kelas ini
+            foreach ($class->childrens as $child) {
+                // Set anak menjadi tidak aktif
+                $child->is_active = false;
+                $child->class_id = null;
+                $child->save();
+            }
+        });
     }
 
     /**

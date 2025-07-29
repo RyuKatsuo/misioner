@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Link } from '@inertiajs/react';
 
 
 type ColumnsProps = {
@@ -44,6 +45,7 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] 
     {
         id: 'actions',
         cell: ({ row }) => {
+            const child = row.original;
             return (
                 <div className="text-right">
                     <DropdownMenu modal={false}>
@@ -54,7 +56,9 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] 
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            {/* Tambahkan link ke halaman detail/edit nanti */}
+                            <DropdownMenuItem>
+                                <Link href={route('admin.children.show', child.id)}>Detail</Link>
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

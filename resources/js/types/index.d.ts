@@ -70,10 +70,40 @@ export type Child = {
     parent?: User;
     gender: string;
     classModel?: ClassModel;
+    total_score: number;
+    attendance_count: number;
     graduate?: Graduate; // <-- Tambahkan ini
     is_active: boolean;
     special_needs_status: boolean;
     special_needs_description?: string;
+};
+
+export type Task = {
+    id: string;
+    task: string;
+    description?: string;
+    admin_id: string;
+    class_id: string;
+};
+
+export type Score = {
+    id: string;
+    score: number;
+    task_id: string;
+    children_id: string;
+    created_at: string;
+    updated_at: string;
+    task: Task;
+};
+
+export type Attendance = {
+    id: string;
+    session_id: string;
+    status: 'Present' | 'Late' | 'Absent' | 'Excused';
+    admin_id: string;
+    children_id: string;
+    created_at: string;
+    updated_at: string;
 };
 
 export type PaginatedResponse<T> = {
