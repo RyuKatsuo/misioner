@@ -42,7 +42,8 @@ export default function ChildrenIndex({ childrens: childrens, filters }: Props) 
 
     const memoizedColumns = React.useMemo(
         () => getColumns({
-            onDeleteClick: (childrens) => setChildrenToDelete(childrens)
+            onDeleteClick: (childrens) => setChildrenToDelete(childrens),
+            pageStatus: filters.status || 'active'
         }), []);
 
     return (

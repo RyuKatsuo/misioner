@@ -74,6 +74,8 @@ export type Child = {
     attendance_count: number;
     graduate?: Graduate; // <-- Tambahkan ini
     is_active: boolean;
+    qr_codes?: string;
+    avatar_url?: string;
     special_needs_status: boolean;
     special_needs_description?: string;
 };

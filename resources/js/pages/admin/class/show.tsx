@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, MoreVertical, PlusCircle } from 'lucide-react';
 import * as React from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -38,12 +38,13 @@ export default function ShowClass({ class: classData }: Props) {
     const handleUnenroll = () => {
         if (!childToUnenroll) return
 
-        router.delete(route('admin.class.unenroll', {class: classData.id, child: childToUnenroll.id}), {
+        router.delete(route('admin.class.unenroll', { class: classData.id, child: childToUnenroll.id }), {
             preserveScroll: true,
             onSuccess: () => setChildToUnenroll(null),
             onError: () => setChildToUnenroll(null)
         });
     }
+
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -53,7 +54,25 @@ export default function ShowClass({ class: classData }: Props) {
                 {/* Kartu Informasi Utama */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>{classData.class_name}</CardTitle>
+                        {/* Perbaikan 2: Struktur CardHeader yang lebih baik */}
+                        <div className="flex items-center justify-between">
+                            <CardTitle>{classData.class_name}</CardTitle>
+                            <DropdownMenu modal={false}>
+                                {/* Perbaikan 3: Tambahkan prop 'asChild' */}
+                                <DropdownMenuTrigger asChild>
+                                    <Button className="h-8 w-8 p-0">
+                                        <span className="sr-only">Open menu</span>
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('admin.graduate.create', classData.id)}>Graduate Child</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                         <CardDescription>
                             Period: <span className="font-semibold">{classData.period?.name}</span>
                         </CardDescription>
@@ -108,6 +127,8 @@ export default function ShowClass({ class: classData }: Props) {
                             <TableBody>
                                 {classData.childrens.length > 0 ? (
                                     classData.childrens.map((child) => (
+                                        // console.log(child);
+
                                         <TableRow key={child.id}>
                                             <TableCell className="font-medium">{child.name}</TableCell>
                                             <TableCell>
@@ -120,9 +141,13 @@ export default function ShowClass({ class: classData }: Props) {
                                                 <p>{child.gender}</p>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant={child.is_active ? 'default' : 'secondary'}>
-                                                    {child.is_active ? 'Active' : 'Inactive'}
-                                                </Badge>
+                                                {child.graduate ? (
+                                                    <Badge variant="outline">Graduated</Badge>
+                                                ) : (
+                                                    <Badge variant={child.is_active ? 'default' : 'secondary'}>
+                                                        {child.is_active ? 'Active' : 'Inactive'}
+                                                    </Badge>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 {child.special_needs_status ? (

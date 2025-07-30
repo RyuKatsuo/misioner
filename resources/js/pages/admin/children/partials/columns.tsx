@@ -23,9 +23,9 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] 
     {
         accessorKey: 'class_model.class_name',
         header: 'Class',
-        cell: ({ row }) => 
+        cell: ({ row }) =>
             // console.log(row.original);
-            
+
             row.original?.class_model?.class_name ?? 'N/A'
     },
     {
@@ -41,6 +41,25 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] 
                 </Badge>
             );
         },
+    },
+    {
+        accessorKey: 'special_needs_status',
+        header: 'Special Needs',
+        cell: ({ row }) => {
+            const child = row.original;
+            return (
+                child.special_needs_status ? (
+                    <div className="flex flex-col">
+                        <Badge variant="destructive">Yes</Badge>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            {child.special_needs_description}
+                        </p>
+                    </div>
+                ) : (
+                    'No'
+                )
+            )
+        }
     },
     {
         id: 'actions',

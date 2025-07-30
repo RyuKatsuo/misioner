@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Perbarui tipe Child di types/index.d.ts untuk menyertakan relasi ini
 interface ChildWithDetails extends Child {
@@ -23,7 +24,7 @@ export default function ShowChild({ child }: Props) {
     ];
 
     return (
-        
+
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Child Details: ${child.name}`} />
 
@@ -32,17 +33,34 @@ export default function ShowChild({ child }: Props) {
                 <div className="lg:col-span-1 flex flex-col gap-6">
                     <Card>
                         <CardHeader>
+                            <Avatar className="h-24 w-24 mb-4">
+                                <AvatarImage src={child.avatar_url} alt={child.name} />
+                                <AvatarFallback>{child.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                            </Avatar>
                             <CardTitle>{child.name}</CardTitle>
                             <CardDescription>
                                 Parent: <span className="font-semibold">{child.parent?.name ?? 'N/A'}</span>
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
+                            <p><strong>QR Code:</strong> <Badge variant="secondary">{child.qr_code ?? 'Not Set'}</Badge></p>
                             <p><strong>Class:</strong> {child?.class_model?.class_name ?? 'Not Enrolled'}</p>
                             <p><strong>Period:</strong> {child?.class_model?.period?.name ?? 'N/A'}</p>
                             <p><strong>Gender:</strong> {child.gender}</p>
                             <p><strong>Date of Birth:</strong> {new Date(child.date_of_birth).toLocaleDateString()}</p>
                             <p><strong>Status:</strong> <Badge variant={child.is_active ? 'default' : 'secondary'}>{child.is_active ? 'Active' : 'Inactive'}</Badge></p>
+                            <div className="rounded-md border bg-muted/50 p-3">
+                                <p><strong>Special Needs:</strong>
+                                    <Badge variant={child.special_needs_status ? 'destructive' : 'outline'} className="ml-2">
+                                        {child.special_needs_status ? 'Yes' : 'No'}
+                                    </Badge>
+                                </p>
+                                {child.special_needs_status && (
+                                    <p className="mt-2 text-muted-foreground">
+                                        <strong>Description:</strong> {child.special_needs_description}
+                                    </p>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
 

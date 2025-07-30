@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ChildrenAdminController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\EnrollClassController;
+use App\Http\Controllers\Admin\GraduateChildrenController;
 use App\Http\Controllers\admin\LoginAdminController;
 use App\Http\Controllers\admin\PeriodController;
 use Illuminate\Support\Facades\Log;
@@ -63,6 +64,11 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     Route::controller(ChildrenAdminController::class)->group(function() {
         Route::get('/childrens', 'index')->name('children.index');
         Route::get('/childrens/{child}', 'show')->name('children.show');
+    });
+
+    Route::controller(GraduateChildrenController::class)->group(function() {
+        Route::get('/classes/{class}/graduate', 'create')->name('graduate.create');
+        Route::post('/classes/{class}/graduate', 'store')->name('graduate.store');
     });
 });
 

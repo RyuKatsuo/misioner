@@ -66,7 +66,7 @@ class ClassController extends Controller
 
     public function show(ClassModel $class)
     {
-        $class->load(['period', 'childrens']);
+        $class->load(['period', 'childrens.graduate',]);
 
         $classWithStats = $class->loadCount([
             'childrens as total_children',
