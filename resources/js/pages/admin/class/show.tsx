@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, MoreVertical, PlusCircle } from 'lucide-react';
 import * as React from 'react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 
@@ -34,6 +34,7 @@ export default function ShowClass({ class: classData }: Props) {
     ];
 
     const [childToUnenroll, setChildToUnenroll] = React.useState<Child | null>(null)
+    const [childToUngraduate, setChildToUngraduate] = React.useState<Child | null>(null)
 
     const handleUnenroll = () => {
         if (!childToUnenroll) return
@@ -42,6 +43,16 @@ export default function ShowClass({ class: classData }: Props) {
             preserveScroll: true,
             onSuccess: () => setChildToUnenroll(null),
             onError: () => setChildToUnenroll(null)
+        });
+    }
+
+    const handleUngraduate = () => {
+        if(!childToUngraduate) return
+
+        router.delete(route('admin.class.ungraduate', {child: childToUngraduate.id}), {
+            preserveScroll: true,
+            onSuccess: () => setChildToUngraduate(null),
+            onError: () => setChildToUngraduate(null)
         });
     }
 
@@ -68,7 +79,7 @@ export default function ShowClass({ class: classData }: Props) {
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                     <DropdownMenuItem asChild>
-                                        <Link href={route('admin.graduate.create', classData.id)}>Graduate Child</Link>
+                                        <Link href={route('admin.class.graduate.form', classData.id)}>Graduate Child</Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -173,6 +184,14 @@ export default function ShowClass({ class: classData }: Props) {
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuItem
                                                             className="text-red-600 focus:text-red-600"
+                                                            onSelect={() => setChildToUngraduate(child)}
+                                                            disabled={!child.graduate}
+                                                        >
+                                                            Remove Graduate Status
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator/>
+                                                        <DropdownMenuItem
+                                                            className="text-red-600 focus:text-red-600"
                                                             onSelect={() => setChildToUnenroll(child)}
                                                         >
                                                             Remove from Class
@@ -205,6 +224,24 @@ export default function ShowClass({ class: classData }: Props) {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleUnenroll} className="bg-red-600 hover:bg-red-700">
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+
+            <AlertDialog open={!!childToUngraduate} onOpenChange={(open) => !open && setChildToUngraduate(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will change <span className="font-semibold text-foreground">{childToUngraduate?.name}</span> graduate status. This action does not delete the child's data.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleUngraduate} className="bg-red-600 hover:bg-red-700">
                             Continue
                         </AlertDialogAction>
                     </AlertDialogFooter>

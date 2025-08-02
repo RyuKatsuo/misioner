@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './partials/columns';
 import * as React from 'react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface Props {
     childrens: PaginatedResponse<Child>;
@@ -25,6 +26,9 @@ export default function ChildrenIndex({ childrens: childrens, filters }: Props) 
     };
 
     const [childrenToDelete, setChildrenToDelete] = React.useState<Child | null>(null);
+    const [childToUngraduate, setChildToUngraduate] = React.useState<Child | null>(null);
+
+
     const handleDelete = () => {
         if (!childrenToDelete) return;
 
@@ -38,13 +42,26 @@ export default function ChildrenIndex({ childrens: childrens, filters }: Props) 
         //     },
         // });
     };
-    
+
+    const handleUngraduate = () => {
+        if (!childToUngraduate) return
+
+        router.delete(route('admin.class.ungraduate', { child: childToUngraduate.id }), {
+            preserveScroll: true,
+            onSuccess: () => setChildToUngraduate(null),
+            onError: () => setChildToUngraduate(null)
+        });
+    }
+
 
     const memoizedColumns = React.useMemo(
         () => getColumns({
             onDeleteClick: (childrens) => setChildrenToDelete(childrens),
-            pageStatus: filters.status || 'active'
-        }), []);
+            pageStatus: filters.status || 'active',
+            onUngraduateClick: (childrens) => setChildToUngraduate(childrens)
+        }), [
+            filters.status
+        ]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -68,6 +85,23 @@ export default function ChildrenIndex({ childrens: childrens, filters }: Props) 
                     searchPlaceholder="Search by child or parent name..."
                 />
             </div>
+
+            <AlertDialog open={!!childToUngraduate} onOpenChange={(open) => !open && setChildToUngraduate(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will change <span className="font-semibold text-foreground">{childToUngraduate?.name}</span> graduate status. This action does not delete the child's data.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleUngraduate} className="bg-red-600 hover:bg-red-700">
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

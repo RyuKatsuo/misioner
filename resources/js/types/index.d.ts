@@ -20,6 +20,8 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon | null;
     is_active?: boolean;
+    activeUrlPattern?: string[];
+    permission?: string | string[];
 }
 
 export interface SharedData {
@@ -107,6 +109,13 @@ export type Attendance = {
     created_at: string;
     updated_at: string;
 };
+
+export type Session = {
+    id: string;
+    topic: string | null;
+    session_date: string;
+    created_at: string;
+}
 
 export type PaginatedResponse<T> = {
     data: T[];

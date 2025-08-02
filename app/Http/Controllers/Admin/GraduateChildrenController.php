@@ -15,7 +15,7 @@ use Inertia\Response;
 
 class GraduateChildrenController extends Controller
 {
-    public function create(Request $request, ClassModel $class): Response
+    public function showGraduateForm(Request $request, ClassModel $class): Response
     {
         // dd($request->input('search'));
         $childrenToGraduate = Child::with('parent')
@@ -44,11 +44,11 @@ class GraduateChildrenController extends Controller
     {
         $validated = $request->validated();
         try {
-            DB::transaction(function () use ($validated){
-                foreach($validated['children_ids'] as $childId){
+            DB::transaction(function () use ($validated) {
+                foreach ($validated['children_ids'] as $childId) {
                     $child = Child::find($childId);
 
-                    if(!$child || !$child->is_active){
+                    if (!$child || !$child->is_active) {
                         throw new \Exception("Child with ID $childId is not valid for graduation.");
                     }
 
@@ -65,5 +65,24 @@ class GraduateChildrenController extends Controller
             return back()->with('error', 'An Error occurred while graduating children. No changes were made.');
         }
         return to_route('admin.class.show', $class->id)->with('success', 'Children graduated successfully.');
+    }
+
+    public function ungraduate(Child $child): RedirectResponse
+    {
+        try {
+            DB::transaction(function () use ($child) {
+                $graduateRecord = Graduate::where('children_id', $child->id)->first();
+                if(!$graduateRecord){
+                    throw new \Exception('This child is not graduate');
+                }
+
+                $graduateRecord->delete();
+                $child->is_active = true;
+                $child->save();
+            });
+        } catch (\Throwable $th) {
+            return back()->with('error', 'Failed to ungraduate child. Please try again.');
+        }
+         return back()->with('success', 'Child has been ungraduated and is now inactive.');
     }
 }

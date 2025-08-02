@@ -15,9 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name', 150);
             $table->string('email')->unique();
-            $table->string('password');
-            $table->string('phone_number', 15);
-            $table->text('address');
+            $table->string('password')->nullable();
+            $table->string('phone_number', 15)->nullable();
+            $table->text('address')->nullable();
             $table->enum('gender', ['Male', 'Female']);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

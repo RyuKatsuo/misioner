@@ -32,7 +32,7 @@ export default function GraduateChild({ childrenToGraduate, filters, class: clas
         const timeout = setTimeout(() => {
             
             if (searchTerm !== (filters.search || '')) {
-                router.get(route('admin.graduate.create', classData.id), { search: searchTerm }, {
+                router.get(route('admin.class.graduate.form', classData.id), { search: searchTerm }, {
                     preserveState: true,
                     replace: true,
                 });
@@ -52,7 +52,7 @@ export default function GraduateChild({ childrenToGraduate, filters, class: clas
     
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.graduate.store', classData.id), {
+        post(route('admin.class.graduate.store', classData.id), {
             onSuccess: () => setData('children_ids', []),
         });
     };

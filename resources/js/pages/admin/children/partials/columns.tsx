@@ -3,15 +3,17 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from '@inertiajs/react';
 
 
 type ColumnsProps = {
-    onDeleteClick: (classes: Child) => void;
+    onDeleteClick: (child: Child) => void;
+    onUngraduateClick: (child: Child) => void;
+    pageStatus: string;
 }
 
-export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] => [
+export const getColumns = ({ onDeleteClick, onUngraduateClick, pageStatus }: ColumnsProps): ColumnDef<Child>[] => [
     {
         accessorKey: 'name',
         header: 'Name',
@@ -76,8 +78,20 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Child>[] 
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>
-                                <Link href={route('admin.children.show', child.id)}>Detail</Link>
+                                <Link href={route('admin.children.show', child.id)}>Detail Children</Link>
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {pageStatus === 'graduated' && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        className="text-red-600 focus:text-red-600"
+                                        onSelect={() => onUngraduateClick(child)}
+                                    >
+                                        Remove Graduate Status
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

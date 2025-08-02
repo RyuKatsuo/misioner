@@ -25,7 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             // 'auth.group' => \App\Http\Middleware\EnsureUserOrAdminAuthenticated::class,
-            'redirect.admin.if.authenticated' => \App\Http\Middleware\RedirectIfAuthenticatedAdmin::class
+            'redirect.admin.if.authenticated' => \App\Http\Middleware\RedirectIfAuthenticatedAdmin::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
