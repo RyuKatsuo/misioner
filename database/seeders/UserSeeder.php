@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
     {
         $communityId = DB::table('communities')->first()?->id;
 
-        User::create([
+        $user = User::create([
             'id' => Str::uuid(),
             'name' => 'Ananda Andreas',
             'email' => 'ananda@example.com',
@@ -33,6 +33,8 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ]);
+
+        $user->assignRole('Parent');
 
     }
 }

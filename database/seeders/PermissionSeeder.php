@@ -48,6 +48,11 @@ class PermissionSeeder extends Seeder
             'admin.session.attendance',
 
             'admin.children.view_list',
+            'admin.children.edit',
+            'children.show',
+
+            
+
 
 
         ];
@@ -79,6 +84,8 @@ class PermissionSeeder extends Seeder
             'admin.session.delete',
 
             'admin.children.view_list',
+            'children.show',
+
 
 
         ];
@@ -101,12 +108,25 @@ class PermissionSeeder extends Seeder
             'admin.session.attendance',
 
             'admin.children.view_list',
-        
+            'children.show',
+
+            
+
+        ];
+
+        $permissionsParent = [
+            'children.show',
+            'children.view_list',
+            'children.create',
 
         ];
 
         foreach ($permissionsSuperadmin as $permission) {
             Permission::updateOrCreate(['name' => $permission, 'guard_name' => 'admin']);
+        }
+
+        foreach ($permissionsParent as $permission) {
+            Permission::updateOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         $roleAdmin = Role::updateOrCreate(['name' => 'Superadmin', 'guard_name' => 'admin']);
@@ -117,5 +137,8 @@ class PermissionSeeder extends Seeder
 
         $roleTeacher = Role::updateOrCreate(['name' => 'Teacher', 'guard_name' => 'admin']);
         $roleTeacher->syncPermissions($permissionsTeacher);
+
+        $roleParent = Role::updateOrCreate(['name' => 'Parent', 'guard_name' => 'web']);
+        $roleParent->syncPermissions($permissionsParent);
     }
 }

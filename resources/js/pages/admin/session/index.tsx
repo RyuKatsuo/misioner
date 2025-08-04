@@ -1,7 +1,7 @@
 import * as React from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PaginatedResponse, type Session, type ClassModel } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './partials/columns';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SessionIndex({ sessions, classes, filters }: Props) {
+    
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+    
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-    const memoizedColumns = React.useMemo(() => getColumns(), []);
-
+    const memoizedColumns = React.useMemo(() => getColumns({ permissions: userPermissions}), [userPermissions]);
+    
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Sessions Management" />
@@ -32,10 +36,13 @@ export default function SessionIndex({ sessions, classes, filters }: Props) {
                         <h1 className="text-2xl font-semibold">Sessions</h1>
                         <p className="text-muted-foreground">Manage all attendance sessions.</p>
                     </div>
+
+                    {userPermissions.includes('admin.session.create') && (
                     <Button onClick={() => setIsCreateOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Session
                     </Button>
+                    )}
                 </div>
 
                 <DataTable
@@ -46,7 +53,7 @@ export default function SessionIndex({ sessions, classes, filters }: Props) {
                     searchPlaceholder="Search by class name or topic..."
                 />
             </div>
-            
+
             <CreateSessionDialog
                 open={isCreateOpen}
                 onOpenChange={setIsCreateOpen}

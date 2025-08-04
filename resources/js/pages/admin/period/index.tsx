@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import ManagementLayout from '@/layouts/management-layout';
 import { PaginatedResponse, type BreadcrumbItem, type Period } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table'; // Impor DataTable generik
 import { getColumns } from './partials/columns'; // Impor definisi kolom
 import * as React from 'react';
@@ -47,6 +47,10 @@ export default function PeriodIndex({ periods, filters }: Props) {
         []
     );
 
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Periods" />
@@ -56,12 +60,14 @@ export default function PeriodIndex({ periods, filters }: Props) {
                         <h1 className="text-2xl font-semibold">Periods</h1>
                         <p className="text-muted-foreground">Manage all Periods in the system.</p>
                     </div>
-                    <Link href={route('admin.period.create')}>
-                        <Button>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Create Period
-                        </Button>
-                    </Link>
+                    {userPermissions.includes('admin.period.create') && (
+                        <Link href={route('admin.period.create')}>
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create Period
+                            </Button>
+                        </Link>
+                    )}
                 </div>
                 <DataTable
                     columns={columns}

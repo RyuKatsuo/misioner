@@ -68,13 +68,16 @@ export type Graduate = {
 export type Child = {
     id: string;
     name: string;
-    active: boolean;
+    is_active: boolean;
     parent?: User;
     gender: string;
+    date_of_birth: string;
+    school: string;
+    hobby: string;
     classModel?: ClassModel;
     total_score: number;
     attendance_count: number;
-    graduate?: Graduate; // <-- Tambahkan ini
+    graduate?: Graduate;
     is_active: boolean;
     qr_codes?: string;
     avatar_url?: string;

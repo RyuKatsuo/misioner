@@ -19,13 +19,13 @@ class Child extends Model
 
     protected $fillable = [
         'name', 'attendance_count', 'total_score', 'school',
-        'hobby', 'date_of_birth', 'special_needs_status',
-        'special_needs_description', 'gender', 'active',
+        'avatar_url', 'hobby', 'date_of_birth', 'special_needs_status',
+        'special_needs_description', 'gender', 'is_active',
         'parent_id', 'qr_code', 'class_id',
     ];
 
     protected $casts = [
-        'active' => 'boolean',
+        'is_active' => 'boolean',
         'special_needs_status' => 'boolean',
         'date_of_birth' => 'date',
     ];

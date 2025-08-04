@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Child, type Attendance, type Score } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -16,10 +16,13 @@ interface Props {
     child: ChildWithDetails;
 }
 
+
 export default function ShowChild({ child }: Props) {
+    const { auth } = usePage<SharedData>().props;
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Home', href: route('admin.dashboard') },
-        { title: 'Children', href: route('admin.children.index') },
+        { title: 'Children', href: auth.user?.role.includes('Parent') ? route('children.index') : route('admin.children.index') },
         { title: 'Details', href: '#' },
     ];
 
@@ -34,8 +37,10 @@ export default function ShowChild({ child }: Props) {
                     <Card>
                         <CardHeader>
                             <Avatar className="h-24 w-24 mb-4">
-                                <AvatarImage src={child.avatar_url} alt={child.name} />
-                                <AvatarFallback>{child.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={child.avatar_url ? `/storage/${child.avatar_url}` : undefined} alt={child.name} />
+                                <AvatarFallback className="text-2xl font-bold">
+                                    {child.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
                             </Avatar>
                             <CardTitle>{child.name}</CardTitle>
                             <CardDescription>

@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type ClassModel, type Child } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -47,14 +47,17 @@ export default function ShowClass({ class: classData }: Props) {
     }
 
     const handleUngraduate = () => {
-        if(!childToUngraduate) return
+        if (!childToUngraduate) return
 
-        router.delete(route('admin.class.ungraduate', {child: childToUngraduate.id}), {
+        router.delete(route('admin.class.ungraduate', { child: childToUngraduate.id }), {
             preserveScroll: true,
             onSuccess: () => setChildToUngraduate(null),
             onError: () => setChildToUngraduate(null)
         });
     }
+
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
 
 
     return (
@@ -65,24 +68,24 @@ export default function ShowClass({ class: classData }: Props) {
                 {/* Kartu Informasi Utama */}
                 <Card>
                     <CardHeader>
-                        {/* Perbaikan 2: Struktur CardHeader yang lebih baik */}
                         <div className="flex items-center justify-between">
                             <CardTitle>{classData.class_name}</CardTitle>
-                            <DropdownMenu modal={false}>
-                                {/* Perbaikan 3: Tambahkan prop 'asChild' */}
-                                <DropdownMenuTrigger asChild>
-                                    <Button className="h-8 w-8 p-0">
-                                        <span className="sr-only">Open menu</span>
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem asChild>
-                                        <Link href={route('admin.class.graduate.form', classData.id)}>Graduate Child</Link>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            {userPermissions.includes('admin.class.graduate') && (
+                                <DropdownMenu modal={false}>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button className="h-8 w-8 p-0">
+                                            <span className="sr-only">Open menu</span>
+                                            <MoreVertical className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={route('admin.class.graduate.form', classData.id)}>Graduate Child</Link>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
                         </div>
                         <CardDescription>
                             Period: <span className="font-semibold">{classData.period?.name}</span>
@@ -115,12 +118,15 @@ export default function ShowClass({ class: classData }: Props) {
                             <CardTitle>Children List</CardTitle>
                             <CardDescription>List of children enrolled in this class.</CardDescription>
                         </div>
-                        <Link href={route('admin.class.enroll.form', classData.id)}>
-                            <Button>
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Enroll Child
-                            </Button>
-                        </Link>
+
+                        {userPermissions.includes('admin.class.enroll') && (
+                            <Link href={route('admin.class.enroll.form', classData.id)}>
+                                <Button>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Enroll Child
+                                </Button>
+                            </Link>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -182,6 +188,12 @@ export default function ShowClass({ class: classData }: Props) {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem>
+                                                            <Link href={route('children.show', child.id)}>
+
+                                                                Detail Children
+                                                            </Link>
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             className="text-red-600 focus:text-red-600"
                                                             onSelect={() => setChildToUngraduate(child)}
@@ -189,7 +201,7 @@ export default function ShowClass({ class: classData }: Props) {
                                                         >
                                                             Remove Graduate Status
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuSeparator/>
+                                                        <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="text-red-600 focus:text-red-600"
                                                             onSelect={() => setChildToUnenroll(child)}

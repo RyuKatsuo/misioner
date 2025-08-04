@@ -73,4 +73,15 @@ class PeriodController extends Controller
         $period->delete();
         return to_route('admin.period.index')->with('success', 'Period has been deleted.');
     }
+
+    public function show(Period $period): Response
+    {
+        $period->load(['classes' => function ($query) {
+            $query->withCount('childrens');
+        }]);
+
+        return Inertia::render('admin/period/show', [
+            'period' => $period,
+        ]);
+    }
 }

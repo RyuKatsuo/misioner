@@ -23,21 +23,26 @@ export function AppSidebar() {
             href: dashboardRoute,
             icon: LayoutGrid,
             activeUrlPattern: ['admin.dashboard'],
-            // Asumsikan semua admin bisa lihat dasbor, tidak perlu permission spesifik
+        },
+        {
+            title: 'My Children',
+            href: route('children.index'),
+            icon: LayoutGrid,
+            activeUrlPattern: ['children.index'],
         },
         {
             title: 'Management Period & Class',
             href: route('admin.period.index'),
             icon: LayoutGrid,
             activeUrlPattern: ['admin.period.*', 'admin.class.*'],
-            permission: ['admin.period.view_list', 'admin.class.view_list'], // Butuh kedua permission
+            permission: ['admin.period.view_list', 'admin.class.view_list'],
         },
         {
             title: 'Management Childrens',
             href: route('admin.children.index'),
             icon: LayoutGrid,
             activeUrlPattern: ['admin.children.*'],
-            permission: 'admin.children.view_list', // Hanya butuh satu permission
+            permission: 'admin.children.view_list',
         },
         {
             title: 'Management Admin',

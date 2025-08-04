@@ -71,6 +71,9 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Period>[]
                             <DropdownMenuItem asChild>
                                 <Link href={route('admin.period.edit', period.id)}>Edit Period</Link>
                             </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href={route('admin.period.show', period.id)}>View Detail</Link>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 className="text-red-600 focus:text-red-600"

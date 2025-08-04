@@ -78,7 +78,7 @@ export const getColumns = ({ onDeleteClick, onUngraduateClick, pageStatus }: Col
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>
-                                <Link href={route('admin.children.show', child.id)}>Detail Children</Link>
+                                <Link href={route('children.show', child.id)}>Detail Children</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {pageStatus === 'graduated' && (

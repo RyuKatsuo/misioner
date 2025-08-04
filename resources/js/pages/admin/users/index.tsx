@@ -69,6 +69,9 @@ export default function Index({ users, filters }: IndexUsersProps) {
         []
     );
 
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Management" />
@@ -87,12 +90,15 @@ export default function Index({ users, filters }: IndexUsersProps) {
                         <h1 className="text-2xl font-semibold">Admin</h1>
                         <p className="text-muted-foreground">Manage all admin in the system.</p>
                     </div>
-                    <Link href={route('admin.users.create')}>
-                        <Button>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Create Admin
-                        </Button>
-                    </Link>
+
+                    {userPermissions.includes('admin.user.create') && (
+                        <Link href={route('admin.users.create')}>
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create Admin
+                            </Button>
+                        </Link>
+                    )}
                 </div>
 
                 <DataTable

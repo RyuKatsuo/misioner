@@ -5,7 +5,11 @@ import { Link } from '@inertiajs/react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 
-export const getColumns = (): ColumnDef<Session>[] => [
+type ColumnsProps = {
+    permissions: string[];
+}
+
+export const getColumns = ({ permissions }: ColumnsProps): ColumnDef<Session>[] => [
     {
         accessorKey: 'class_model.class_name',
         header: 'Class',
@@ -51,15 +55,20 @@ export const getColumns = (): ColumnDef<Session>[] => [
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                                <Link href={route('admin.attendances.show', session.id)}>Take Attendance</Link>
-                            </DropdownMenuItem>
+
+                            {permissions.includes('admin.session.attendance') && (
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('admin.attendances.show', session.id)}>Take Attendance</Link>
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem asChild>
                                 <Link href={route('admin.session.show', session.id)}>View Details</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                                <Link href={route('admin.session.edit', session.id)}>Update Status</Link>
-                            </DropdownMenuItem>
+                            {permissions.includes('admin.session.edit') && (
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('admin.session.edit', session.id)}>Update Status</Link>
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

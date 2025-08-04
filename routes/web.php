@@ -10,6 +10,7 @@ use App\Http\Controllers\admin\PeriodController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SetPasswordController;
+use App\Http\Controllers\User\ChildController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +43,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::get('/periods', 'index')->name('period.index')->middleware('permission:admin.period.view_list');
         Route::get('/periods/create', 'create')->name('period.create')->middleware('permission:admin.period.create');
         Route::post('/periods', 'store')->name('period.store')->middleware('permission:admin.period.create');
+        Route::get('/periods/{period}', 'show')->name('period.show');
         Route::get('/periods/{period}/edit', 'edit')->name('period.edit')->middleware('permission:admin.period.edit');
         Route::put('/periods/{period}', 'update')->name('period.update')->middleware('permission:admin.period.edit');
         Route::delete('/periods/{period}', 'destroy')->name('period.destroy')->middleware('permission:admin.period.delete');
@@ -65,7 +67,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
 
     Route::controller(ChildrenAdminController::class)->group(function() {
         Route::get('/childrens', 'index')->name('children.index')->middleware('permission:admin.children.view_list');
-        Route::get('/childrens/{child}', 'show')->name('children.show')->middleware();
+        Route::get('/childrens/{child}/edit', 'edit')->name('children.edit')->middleware('permission:admin.children.edit');
+        Route::post('childrens/{child}', 'update')->name('children.update')->middleware('permission:admin.children.edit');
     });
 
     Route::controller(GraduateChildrenController::class)->group(function() {
@@ -97,9 +100,17 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     Route::controller(AttendanceController::class)
         ->as('attendances.')
         ->group(function() {
-            Route::get('/attendances/{session}', 'show')->name('show');
+        Route::get('/attendances/{session}', 'show')->name('show')->middleware('permission:admin.session.attendance');
             Route::post('/attendances/{session}/check-in', 'checkIn')->name('check-in')->middleware('permission:admin.session.attendance');
         });
+});
+
+Route::controller(ChildController::class)->group(function() {
+    Route::get('/children/create', 'create')->name('children.create')->middleware(['auth:web', 'permission:children.create']);
+    Route::post('/children', 'store')->name('children.store')->middleware(['auth:web', 'permission:children.create']);
+    Route::get('/my-children', 'index')->name('children.index')->middleware('auth:web', 'permission:children.view_list');
+    Route::get('/childrens/{child}', 'show')->name('children.show')->middleware( 'auth:admin,web','permission:children.show');
+
 });
 
 Route::get('/set-password/{admin}', [SetPasswordController::class, 'create'])->middleware('signed')
