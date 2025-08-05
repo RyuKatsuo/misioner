@@ -1,50 +1,28 @@
-# render.yaml
-# Blueprint untuk deploy Laravel 12 + Inertia/React di Render
+# render.yaml - Konfigurasi untuk Docker Deployment
 
 services:
   - type: web
     name: misioner
-    env: php
-    plan: free
-    region: singapore # Direkomendasikan untuk performa lebih baik di Asia
-    buildCommand: |
-      # Instal dependencies
-      composer install --no-dev --working-dir=/var/www/html --optimize-autoloader
-      echo "generating application key..."
-      php artisan key:generate --show
-
-      echo "Caching config..."
-      php artisan config:cache
-
-      echo "Caching routes..."
-      php artisan route:cache
-
-      echo "Running migrations..."
-      php artisan migrate --force --seed
-
-      npm install
-      # Build aset frontend (React/Vite)
-      npm run build
-      # Jalankan migrasi database
-      php artisan migrate --force --seed
-    startCommand: php artisan serve --host=0.0.0.0 --port=${PORT}
+    # Beritahu Render untuk menggunakan Docker, bukan native runtime
+    runtime: docker
+    # Render akan secara otomatis mencari dan menggunakan Dockerfile di root proyek
+    plan: free # atau starter
+    region: singapore
     healthCheckPath: /up
     envVars:
+      # Variabel lingkungan Anda akan disuntikkan ke dalam container Docker
       - key: APP_URL
         value: https://misioner.onrender.com
-      - key: APP_KEY
-        generateValue: true
+      - key: APP_KEY # PENTING: Set nilainya di dashboard Render
+        sync: false
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: LOG_CHANNEL
         value: stderr
-      - key: ASSET_URL
-        fromService:
-          type: web
-          name: misioner
-          property: url
+      
+      # Variabel Database Supabase
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
@@ -55,5 +33,5 @@ services:
         value: postgres
       - key: DB_USERNAME
         value: postgres.oqlrpnapiuthmfwiubii
-      - key: DB_PASSWORD
+      - key: DB_PASSWORD # PENTING: Set nilainya di dashboard Render
         sync: false
