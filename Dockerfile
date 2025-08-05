@@ -14,6 +14,7 @@ RUN apt-get install -y \
     libfreetype6-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # 3. Instal ekstensi PHP. Sekarang seharusnya berhasil karena semua dependensi sistem sudah ada.
