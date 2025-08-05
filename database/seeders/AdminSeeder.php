@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
             'email' => "anandaandreas11@gmail.com",
             'password' => Hash::make('qweqweqwe'),
             'phone_number'=> "0820203012",
-            'address' => fake()->address(),
+            'address' => "asdasdasdas",
             'gender' => 'Male'
         ]);
 

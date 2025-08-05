@@ -25,7 +25,7 @@ FROM base AS composer_dependencies
 WORKDIR /app
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-dev --no-scripts --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --no-scripts --prefer-dist --optimize-autoloader
 
 # --- Tahap 3: Node.js Dependencies ---
 FROM node:18 AS node_dependencies
