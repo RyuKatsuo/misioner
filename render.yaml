@@ -9,7 +9,19 @@ services:
     region: singapore # Direkomendasikan untuk performa lebih baik di Asia
     buildCommand: |
       # Instal dependencies
-      composer install --no-dev --optimize-autoloader
+      composer install --no-dev --working-dir=/var/www/html --optimize-autoloader
+      echo "generating application key..."
+      php artisan key:generate --show
+
+      echo "Caching config..."
+      php artisan config:cache
+
+      echo "Caching routes..."
+      php artisan route:cache
+
+      echo "Running migrations..."
+      php artisan migrate --force --seed
+
       npm install
       # Build aset frontend (React/Vite)
       npm run build
