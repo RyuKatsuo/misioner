@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Jalankan migrasi database
-php artisan migrate:fresh --seed
+# php artisan migrate:fresh --seed
 
 # Mulai PHP-FPM di background
 php-fpm -D
