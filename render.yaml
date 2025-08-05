@@ -9,6 +9,7 @@ services:
     plan: free # atau starter
     region: singapore
     healthCheckPath: /up
+    healthCheckInitialDelaySeconds: 300
     envVars:
       # Variabel lingkungan Anda akan disuntikkan ke dalam container Docker
       - key: APP_URL
