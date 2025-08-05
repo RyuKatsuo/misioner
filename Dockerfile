@@ -1,57 +1,36 @@
-# Dockerfile Production untuk Laravel 12 + Inertia/React (Versi Final Diperbaiki)
+### Step 1: Node.js for frontend (Vite)
+FROM node:18 AS node-builder
 
-# --- Tahap 1: PHP Base ---
-FROM php:8.2-fpm AS base
-# Pisahkan perintah untuk debugging dan caching yang lebih baik.
-# 1. Update daftar paket
-RUN apt-get update
-
-# 2. Instal semua paket sistem yang dibutuhkan. libfreetype6-dev sudah ditambahkan.
-RUN apt-get install -y \
-    libpng-dev \
-    libzip-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# 3. Instal ekstensi PHP. Sekarang seharusnya berhasil karena semua dependensi sistem sudah ada.
-RUN docker-php-ext-install pdo_mysql pdo_pgsql zip exif pcntl gd bcmath
-
-# --- Tahap 2: Composer Dependencies ---
-FROM base AS composer_dependencies
 WORKDIR /app
+COPY . .
+
+RUN npm install && npm run build
+
+
+### Step 2: PHP for Laravel backend
+FROM php:8.2-fpm
+
+WORKDIR /var/www
+
+# PERUBAHAN 1: Menghapus paket sqlite dan menambahkan paket postgresql
+RUN apt-get update && apt-get install -y \
+    zip unzip curl git libxml2-dev libzip-dev libpng-dev libjpeg-dev libonig-dev \
+    libpq-dev
+
+# PERUBAHAN 2: Mengganti ekstensi pdo_mysql menjadi pdo_pgsql
+RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-scripts --prefer-dist --optimize-autoloader
 
-# --- Tahap 3: Node.js Dependencies ---
-FROM node:18 AS node_dependencies
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+COPY . /var/www
+COPY --chown=www-data:www-data . /var/www
 
-# --- Tahap 4: Production Image ---
-FROM base AS production
-WORKDIR /app
+# Copy only built frontend assets (from Vite)
+COPY --from=node-builder /app/public/build /var/www/public/build
 
-# Instal Nginx
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+RUN composer install
+COPY .env.example .env
+RUN php artisan key:generate
 
-# Salin artefak dari tahap-tahap sebelumnya
-COPY --from=composer_dependencies /app/vendor ./vendor
-COPY . .
-COPY --from=node_dependencies /app/public/build ./public/build
-COPY docker/nginx/default.conf /etc/nginx/sites-available/default
-COPY docker/entrypoint/start.sh /start.sh
-RUN chmod +x /start.sh
-
-# Atur kepemilikan file
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-EXPOSE 80
-ENTRYPOINT ["/start.sh"]
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=8000
