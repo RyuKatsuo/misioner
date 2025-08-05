@@ -136,5 +136,9 @@ Route::get('/set-password/{admin}', [SetPasswordController::class, 'create'])->m
 Route::post('/set-password/{admin}', [SetPasswordController::class, 'store'])
     ->name('user.password.store');
 
+    Route::get('/up', function () {
+    return response('OK', 200);
+});
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

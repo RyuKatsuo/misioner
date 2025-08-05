@@ -1,0 +1,49 @@
+# render.yaml
+# Blueprint untuk deploy Laravel 12 + Inertia/React di Render
+
+services:
+  # 1. Web Service (Aplikasi Laravel Utama)
+  - type: web
+    name: misioner # Ganti dengan nama aplikasi Anda
+    env: php
+    plan: free # atau 'starter' untuk performa lebih baik
+    buildCommand: |
+      # Instal dependencies
+      composer install --no-dev --optimize-autoloader
+      npm install
+      # Build aset frontend (React/Vite)
+      npm run build
+      # Jalankan migrasi database
+      php artisan migrate --force --seed
+    startCommand: php artisan serve --host=0.0.0.0 --port=${PORT}
+    healthCheckPath: /up
+    envVars:
+      - key: APP_URL
+        value: https://misioner.onrender.com # SESUAIKAN DENGAN NAMA DI ATAS
+      - key: APP_KEY # Ini akan kita set di dashboard Render (JANGAN taruh value di sini)
+        generateValue: true # Render akan generate ini saat pembuatan pertama
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: ASSET_URL
+        fromService:
+          type: web
+          name: misioner # Nama service ini sendiri
+          property: url
+      
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-0-ap-southeast-1.pooler.supabase.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.oqlrpnapiuthmfwiubii
+      - key: DB_PASSWORD
+        sync: false
+
