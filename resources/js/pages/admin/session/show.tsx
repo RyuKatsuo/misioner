@@ -10,7 +10,7 @@ interface Props {
 
 export default function ShowSession({ session }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+
         { title: 'Sessions', href: route('admin.session.index') },
         { title: 'Details', href: '#' },
     ];
@@ -34,7 +34,12 @@ export default function ShowSession({ session }: Props) {
                             {session.attendances.map(({ child, status }) => (
                                 <div key={child.id} className="border p-4 rounded-lg text-center">
                                     <p className="font-medium">{child.name}</p>
-                                    <Badge>{status}</Badge>
+                                    <Badge className={
+                                        status === 'Present' ? 'bg-green-500' :
+                                            status === 'Late' ? 'bg-yellow-500' : 
+                                            status === 'Absent' ? 'bg-red-500' :
+                                            'bg-gray-500'
+                                    }>{status}</Badge>
                                 </div>
                             ))}
                         </div>

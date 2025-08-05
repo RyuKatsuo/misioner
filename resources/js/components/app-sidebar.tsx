@@ -13,23 +13,11 @@ import * as React from 'react';
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    
+
 
     const dashboardRoute = auth.guard === 'admin' ? route('admin.dashboard') : route('dashboard');
 
     const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboardRoute,
-            icon: LayoutGrid,
-            activeUrlPattern: ['admin.dashboard'],
-        },
-        {
-            title: 'My Children',
-            href: route('children.index'),
-            icon: LayoutGrid,
-            activeUrlPattern: ['children.index'],
-        },
         {
             title: 'Management Period & Class',
             href: route('admin.period.index'),
@@ -58,7 +46,26 @@ export function AppSidebar() {
             activeUrlPattern: ['admin.session.*', 'admin.attendance.*'],
             permission: 'admin.session.view_list',
         },
+        {
+            title: 'Management Task',
+            href: route('admin.tasks.index'),
+            icon: LayoutGrid,
+            activeUrlPattern: ['admin.task.*'],
+            permission: 'admin.task.view_list',
+
+        },
     ];
+
+    if (auth.guard !== 'admin') {
+        mainNavItems.push(
+            {
+                title: 'My Children',
+                href: route('children.index'),
+                icon: LayoutGrid,
+                activeUrlPattern: ['children.index'],
+            },
+        )
+    }
 
     // Filter mainNavItems berdasarkan permission user
     const userPermissions = auth.user.permissions;

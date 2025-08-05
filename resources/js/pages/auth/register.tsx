@@ -1,28 +1,73 @@
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import * as React from 'react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
+import { LoaderCircle } from 'lucide-react';
 
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
+import { PageProps, type Community } from '@/types';
+import AuthLayout from '@/layouts/auth-layout';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
+import InputError from '@/components/input-error';
+import { Combobox } from '@/components/ui/combobox';
+import { Progress } from '@/components/ui/progress';
+import TextLink from '@/components/text-link';
 
+// Tipe untuk data form
 type RegisterForm = {
     name: string;
     email: string;
     password: string;
     password_confirmation: string;
+    phone_number: string;
+    gender: string;
+    date_of_birth: string;
+    community_option: 'listed' | 'outside' | '';
+    community_id: string;
+    outside_community_address: string;
 };
 
-export default function Register() {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+interface RegisterProps extends PageProps {
+    communities: Pick<Community, 'id' | 'community_name'>[];
+}
+
+export default function Register({ communities }: RegisterProps) {
+    const [step, setStep] = React.useState(1);
+
+    const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        phone_number: '',
+        gender: '',
+        date_of_birth: '',
+        community_option: '',
+        community_id: '',
+        outside_community_address: '',
     });
+
+    // Hook untuk secara otomatis pindah ke step yang error
+    React.useEffect(() => {
+        const errorKeys = Object.keys(errors);
+        if (errorKeys.length > 0) {
+            const firstErrorKey = errorKeys[0] as keyof RegisterForm;
+
+            const step1Fields: (keyof RegisterForm)[] = ['name', 'email', 'password', 'password_confirmation'];
+            const step2Fields: (keyof RegisterForm)[] = ['phone_number', 'gender', 'date_of_birth'];
+
+            if (step1Fields.includes(firstErrorKey)) {
+                setStep(1);
+            } else if (step2Fields.includes(firstErrorKey)) {
+                setStep(2);
+            }
+            // Jika error ada di step 3, kita tidak perlu pindah karena sudah di step terakhir
+        }
+    }, [errors]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -31,85 +76,127 @@ export default function Register() {
         });
     };
 
+    const communityOptions = communities.map((c) => ({ value: c.id, label: c.community_name }));
+
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
+        <AuthLayout title="Create an account" description="Join us by filling out the form below.">
             <Head title="Register" />
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            required
-                            autoFocus
-                            tabIndex={1}
-                            autoComplete="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            disabled={processing}
-                            placeholder="Full name"
-                        />
-                        <InputError message={errors.name} className="mt-2" />
-                    </div>
+            <form onSubmit={submit}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Daftar Orang Tua</CardTitle>
+                        <CardDescription>Step {step} of 3</CardDescription>
+                        <Progress value={(step / 3) * 100} className="mt-2" />
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Step 1: Account Credentials */}
+                        {step === 1 && (
+                            <div className="space-y-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="name">Nama</Label>
+                                    <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} required autoFocus />
+                                    <InputError message={errors.name} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input id="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} required />
+                                    <InputError message={errors.email} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="password">Password</Label>
+                                        <Input id="password" type="password" value={data.password} onChange={(e) => setData('password', e.target.value)} required />
+                                        <InputError message={errors.password} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="password_confirmation">Confirm Password</Label>
+                                        <Input id="password_confirmation" type="password" value={data.password_confirmation} onChange={(e) => setData('password_confirmation', e.target.value)} required />
+                                        <InputError message={errors.password} />
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            required
-                            tabIndex={2}
-                            autoComplete="email"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
-                            disabled={processing}
-                            placeholder="email@example.com"
-                        />
-                        <InputError message={errors.email} />
-                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            tabIndex={3}
-                            autoComplete="new-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            disabled={processing}
-                            placeholder="Password"
-                        />
-                        <InputError message={errors.password} />
-                    </div>
+                        {/* Step 2: Personal Information */}
+                        {step === 2 && (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="phone_number">Nomer Telephone</Label>
+                                        <Input id="phone_number" type="tel" value={data.phone_number} onChange={(e) => setData('phone_number', e.target.value)} required />
+                                        <InputError message={errors.phone_number} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="gender">Jenis Kelamin</Label>
+                                        <Select onValueChange={(value) => setData('gender', value)} value={data.gender} required>
+                                            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Male">Male</SelectItem>
+                                                <SelectItem value="Female">Female</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.gender} />
+                                    </div>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="date_of_birth">Tanggal Lahir</Label>
+                                    <input id="date_of_birth" type="date" value={data.date_of_birth} onChange={(e) => setData('date_of_birth', e.target.value)} onClick={(e) => {
+                                        const input = e.currentTarget;
+                                        input.showPicker?.();
+                                    }} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                                    <InputError message={errors.date_of_birth} />
+                                </div>
+                            </div>
+                        )}
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm password</Label>
-                        <Input
-                            id="password_confirmation"
-                            type="password"
-                            required
-                            tabIndex={4}
-                            autoComplete="new-password"
-                            value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                            disabled={processing}
-                            placeholder="Confirm password"
-                        />
-                        <InputError message={errors.password_confirmation} />
-                    </div>
+                        {/* Step 3: Community Information */}
+                        {step === 3 && (
+                            <div className="space-y-4">
+                                <Label>Lingkungan</Label>
+                                <RadioGroup onValueChange={(value: 'listed' | 'outside') => setData('community_option', value)} value={data.community_option}>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="listed" id="listed" /><Label htmlFor="listed">Saya berasal dari paroki St. Antonius Padua Kotabaru</Label></div>
+                                    <div className="flex items-center space-x-2"><RadioGroupItem value="outside" id="outside" /><Label htmlFor="outside">Saya dari luar paroki St. Antonius Padua Kotabaru</Label></div>
+                                </RadioGroup>
+                                <InputError message={errors.community_option} />
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Create account
-                    </Button>
-                </div>
+                                {data.community_option === 'listed' && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="community_id">Select Community</Label>
+                                        <Combobox options={communityOptions} selectedValue={data.community_id} onSelect={(value) => setData('community_id', value)} placeholder="Search community..." />
+                                        <InputError message={errors.community_id} />
+                                    </div>
+                                )}
+                                {data.community_option === 'outside' && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="outside_community_address">Nama Lingkungan</Label>
+                                        <Textarea id="outside_community_address" value={data.outside_community_address} onChange={(e) => setData('outside_community_address', e.target.value)} />
+                                        <InputError message={errors.outside_community_address} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
+                        {/* Navigation Buttons */}
+                        <div className="mt-6 flex items-center justify-between">
+                            <div>
+                                {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>Back</Button>}
+                            </div>
+                            <div>
+                                {step < 3 && <Button type="button" onClick={() => setStep(step + 1)}>Next</Button>}
+                                {step === 3 && (
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                        Create Account
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
                 <div className="text-center text-sm text-muted-foreground">
-                    Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    Sudah punya akun?{' '}
+                    <TextLink href={route('login')} tabIndex={5}>
                         Log in
                     </TextLink>
                 </div>

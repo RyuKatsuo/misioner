@@ -10,6 +10,7 @@ use App\Http\Controllers\admin\PeriodController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SetPasswordController;
+use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\User\ChildController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -57,6 +58,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::put('/classes/{class}', 'update')->name('class.update')->middleware('permission:admin.class.create');
         Route::get('/classes/{class}', 'show')->name('class.show')->middleware('permission:admin.class.show');
         Route::delete('/classes/{class}', 'destroy')->name('class.destroy')->middleware('permission:admin.class.delete');
+
+        Route::get('/classes/{class}/export-attendance', 'exportAttendance')->name('class.export.attendance');
     });
     
     Route::controller(EnrollClassController::class)->group(function(){
@@ -103,6 +106,19 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         Route::get('/attendances/{session}', 'show')->name('show')->middleware('permission:admin.session.attendance');
             Route::post('/attendances/{session}/check-in', 'checkIn')->name('check-in')->middleware('permission:admin.session.attendance');
         });
+
+    Route::controller(TaskController::class)
+        ->as('tasks.')
+        ->group(function() {
+            Route::get('/tasks', 'index')->name('index')->middleware('permission:admin.task.view_list');
+            Route::get('/tasks/create', 'create')->name('create')->middleware('permission:admin.task.create');
+            Route::post('/tasks', 'store')->name('store')->middleware('permission:admin.task.create');
+            Route::get('/tasks/{task}', 'show')->name('show')->middleware('permission:admin.task.show');
+            Route::get('/tasks/{task}/edit', 'edit')->name('edit')->middleware('permission:admin.task.edit');
+            Route::put('/tasks/{task}', 'update')->name('update')->middleware('permission:admin.task.edit');
+            Route::put('/tasks/{task}/scores', 'updateScores')->name('scores.update')->middleware('permission:admin.task.score.update');
+            Route::delete('/tasks/{task}', 'destroy')->name('destroy')->middleware('permission:admin.task.delete');
+        });
 });
 
 Route::controller(ChildController::class)->group(function() {
@@ -110,6 +126,7 @@ Route::controller(ChildController::class)->group(function() {
     Route::post('/children', 'store')->name('children.store')->middleware(['auth:web', 'permission:children.create']);
     Route::get('/my-children', 'index')->name('children.index')->middleware('auth:web', 'permission:children.view_list');
     Route::get('/childrens/{child}', 'show')->name('children.show')->middleware( 'auth:admin,web','permission:children.show');
+    Route::get('/childrens/{child}/id-card', 'downloadIdCard')->name('children.id_card');
 
 });
 

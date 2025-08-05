@@ -23,7 +23,7 @@ export default function EnrollChild({ class: classData, availableChildren, filte
     const [searchTerm, setSearchTerm] = React.useState(filters.search || '');
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Classes', href: route('admin.class.index') },
         { title: 'Details', href: route('admin.class.show', classData.id) },
         { title: 'Enroll', href: '#' },

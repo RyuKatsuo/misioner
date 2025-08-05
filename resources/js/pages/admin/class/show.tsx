@@ -28,7 +28,7 @@ interface Props {
 
 export default function ShowClass({ class: classData }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Classes', href: route('admin.class.index') },
         { title: 'Details', href: '#' },
     ];

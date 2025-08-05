@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Models\Community;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +22,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('auth/register');
+        $communities = Community::get(['id', 'community_name']);
+        
+        return Inertia::render('auth/register', [
+            'communities' => $communities
+        ]);
     }
 
     /**
@@ -28,24 +34,28 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'phone_number' => $data['phone_number'],
+            'gender' => $data['gender'],
+            'date_of_birth' => $data['date_of_birth'],
+            'community_id' => $data['community_option'] === 'listed' ? $data['community_id'] : null,
+            'outside_community' => $data['community_option'] === 'outside',
+            'outside_community_address' => $data['community_option'] === 'outside' ? $data['outside_community_address'] : null,
         ]);
+
+        $user->assignRole('Parent');
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('children.index', absolute: false));
     }
 }

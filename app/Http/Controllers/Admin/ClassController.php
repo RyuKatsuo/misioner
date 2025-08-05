@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ClassAttendanceExport;
 use App\Http\Controllers\Controller;    
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
@@ -11,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClassController extends Controller
 {
@@ -90,5 +92,14 @@ class ClassController extends Controller
     {
         $class->delete();
         return to_route('admin.class.index')->with('success', 'Class has been deleted.');
+    }
+
+    public function exportAttendance(ClassModel $class)
+    {
+        // Buat nama file yang dinamis
+        $fileName = 'Rekap Kehadiran - ' . $class->class_name . ' - ' . now()->format('Y-m-d') . '.xlsx';
+        
+        // Panggil kelas Export dan unduh filenya
+        return Excel::download(new ClassAttendanceExport($class), $fileName);
     }
 }

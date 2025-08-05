@@ -18,10 +18,21 @@ class Child extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'name', 'attendance_count', 'total_score', 'school',
-        'avatar_url', 'hobby', 'date_of_birth', 'special_needs_status',
-        'special_needs_description', 'gender', 'is_active',
-        'parent_id', 'qr_code', 'class_id',
+        'name',
+        'attendance_count',
+        'total_score',
+        'school',
+        'avatar_url',
+        'hobby',
+        'date_of_birth',
+        'special_needs_status',
+        'special_needs_description',
+        'gender',
+        'is_active',
+        'parent_id',
+        'qr_code',
+        'qr_url',
+        'class_id',
     ];
 
     protected $casts = [
@@ -71,6 +82,15 @@ class Child extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'children_id');
+    }
 
+    public function recalculateTotalScore(): void
+    {
+        // Hitung jumlah dari semua 'score' di relasi 'scores'
+        $newTotalScore = $this->scores()->sum('score');
+
+        // Perbarui kolom total_score dan simpan
+        $this->total_score = $newTotalScore;
+        $this->save();
     }
 }

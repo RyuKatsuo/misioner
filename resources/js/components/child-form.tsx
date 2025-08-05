@@ -87,6 +87,10 @@ export function ChildForm({
                         type="date"
                         value={data.date_of_birth}
                         onChange={(e) => setData('date_of_birth', e.target.value)}
+                        onClick={(e) => {
+                            const input = e.currentTarget;
+                            input.showPicker?.();
+                        }}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                         disabled={processing}
                     />

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users } from 'lucide-react';
+import { Download, Users } from 'lucide-react';
 
 // Perbarui tipe Period di types/index.d.ts untuk menyertakan relasi
 interface ClassWithChildrenCount extends ClassModel {
@@ -22,7 +22,7 @@ interface Props {
 
 export default function ShowPeriod({ period }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Periods', href: route('admin.period.index') },
         { title: 'Details', href: '#' },
     ];
@@ -74,6 +74,12 @@ export default function ShowPeriod({ period }: Props) {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
+                                                <Button asChild variant="secondary" size="sm">
+                                                    <a href={route('admin.class.export.attendance', classItem.id)}>
+                                                        <Download className="mr-2 h-4 w-4" />
+                                                        Report
+                                                    </a>
+                                                </Button>
                                                 <Button asChild variant="outline" size="sm">
                                                     <Link href={route('admin.class.show', classItem.id)}>
                                                         View Class

@@ -84,4 +84,9 @@ class ClassModel extends Model
     {
         return $this->hasMany(Child::class, 'class_id');
     }
+
+    public function sessions(): HasMany 
+    {
+        return $this->hasMany(Session::class, 'class_id');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreChildRequest;
 use App\Models\Child;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,5 +75,24 @@ class ChildController extends Controller
         Child::create($data);
 
         return to_route('children.index')->with('success', 'Child added successfully.');
+    }
+
+    public function downloadIdCard(Child $child)
+    {
+        $child->load('classModel');
+
+        $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url): null;
+        $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url): null;
+
+        $data = [
+            'child' => $child,
+            'avatarBase64' => $avatarPath,
+            'qrCodeBase64' => $qrCodePath,
+        ];
+
+        $filename = 'ID Card - '. $child->name . '.pdf';
+        $pdf = Pdf::loadView('pdf.id_card', $data);
+
+        return $pdf->download($filename);
     }
 }

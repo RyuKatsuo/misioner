@@ -51,7 +51,12 @@ class PermissionSeeder extends Seeder
             'admin.children.edit',
             'children.show',
 
-            
+            'admin.task.view_list',
+            'admin.task.create',
+            'admin.task.show',
+            'admin.task.edit',
+            'admin.task.score.update',
+            'admin.task.delete',
 
 
 
@@ -88,6 +93,9 @@ class PermissionSeeder extends Seeder
 
 
 
+            'admin.task.view_list',
+            'admin.task.show',
+
         ];
 
         $permissionsTeacher = [
@@ -109,8 +117,15 @@ class PermissionSeeder extends Seeder
 
             'admin.children.view_list',
             'children.show',
-
             
+            'admin.task.view_list',
+            'admin.task.create',
+            'admin.task.show',
+            'admin.task.edit',
+            'admin.task.score.update',
+            'admin.task.delete',
+
+
 
         ];
 

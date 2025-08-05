@@ -70,6 +70,7 @@ class EnrollClassController extends Controller
 
 
                         $child->qr_code = $qrCodeValue;
+                        $child->qr_url = 'qrcodes/'.$qrCodeValue.'.svg';
                     }
 
                     $child->class_id = $class->id;

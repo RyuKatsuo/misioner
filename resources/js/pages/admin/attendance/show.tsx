@@ -35,7 +35,7 @@ export default function ShowAttendance({ session }: Props) {
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Sessions', href: route('admin.session.index') },
         { title: 'Attendance', href: '#' },
     ];

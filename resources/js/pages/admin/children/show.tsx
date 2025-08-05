@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 // Perbarui tipe Child di types/index.d.ts untuk menyertakan relasi ini
 interface ChildWithDetails extends Child {
@@ -21,7 +23,7 @@ export default function ShowChild({ child }: Props) {
     const { auth } = usePage<SharedData>().props;
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Children', href: auth.user?.role.includes('Parent') ? route('children.index') : route('admin.children.index') },
         { title: 'Details', href: '#' },
     ];
@@ -66,6 +68,12 @@ export default function ShowChild({ child }: Props) {
                                     </p>
                                 )}
                             </div>
+                            <Button asChild variant="secondary" size="sm">
+                                <a href={route('children.id_card', child.id)}>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    ID Card
+                                </a>
+                            </Button>
                         </CardContent>
                     </Card>
 

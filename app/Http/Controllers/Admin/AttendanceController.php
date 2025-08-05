@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\Child;
 use App\Models\Session;
 use Illuminate\Http\RedirectResponse;
@@ -67,7 +68,12 @@ class AttendanceController extends Controller
             $attendance->status = $newStatus;
             $attendance->save();
 
-            $child->increment('attendance_count');
+            $newAttendanceCount = Attendance::where('children_id', $child->id)
+                ->whereIn('status', ['Present', 'Late'])
+                ->count();
+            
+            $child->attendance_count = $newAttendanceCount;
+            $child->save();
 
             return back()->with('success', "{$child->name}! (Status: {$newStatus})");
         }

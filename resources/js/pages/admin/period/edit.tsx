@@ -14,7 +14,7 @@ interface Props {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Home', href: route('admin.dashboard') },
+    
     { title: 'Periods', href: route('admin.period.index') },
     { title: 'Edit', href: '#' },
 ];

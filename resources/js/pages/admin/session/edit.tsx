@@ -18,7 +18,7 @@ export default function EditSession({ session }: Props) {
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Sessions', href: route('admin.session.index') },
         { title: 'Edit', href: '#' },
     ];

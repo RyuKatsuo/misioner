@@ -28,7 +28,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PeriodSeeder::class,
             ClassSeeder::class,
-            UserAndChildrenSeeder::class
+            UserAndChildrenSeeder::class,
+            CommunitySeeder::class
         ]);
 
     }

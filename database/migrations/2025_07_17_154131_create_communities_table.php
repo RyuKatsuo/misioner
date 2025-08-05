@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('communities', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('community_name');
-            $table->string('leader_name', 150);
-            $table->string('leader_phone', 15);
-            $table->text('address');
+            $table->string('leader_name', 150)->nullable();
+            $table->string('leader_phone', 15)->nullable();
+            $table->text('address')->nullable();
             $table->timestamps();
         });
     }

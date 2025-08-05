@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSessionRequest;
 use App\Models\Attendance;
+use App\Models\Child;
 use App\Models\ClassModel;
 use App\Models\Session;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +20,15 @@ class SessionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $sessions = Session::with(['classModel', 'admin'])
+        $user = Auth::user();
+
+        $query = Session::with(['classModel', 'admin']);
+
+        if (!$user->hasRole(['Superadmin', 'Management'])) {
+            $query->where('created_by', $user->id);
+        }
+
+        $sessions = $query
             ->latest('session_date')
             ->latest('created_at')
             ->paginate(10);
@@ -114,9 +124,20 @@ class SessionController extends Controller
         // Update status kehadiran setiap anak
         foreach ($validated['attendances'] as $attendanceData) {
             $attendance = Attendance::find($attendanceData['id']);
+            $child = Child::where('id', $attendance->children_id)->first();
+            // dd($child);
+
             if ($attendance && $attendance->session_id === $session->id) {
                 $attendance->status = $attendanceData['status'];
+
                 $attendance->save();
+
+                $newAttendanceCount = Attendance::where('children_id', $child->id)
+                    ->whereIn('status', ['Present', 'Late'])
+                    ->count();
+
+                $child->attendance_count = $newAttendanceCount;
+                $child->save();
             }
         }
 

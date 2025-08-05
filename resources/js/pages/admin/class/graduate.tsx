@@ -23,7 +23,7 @@ export default function GraduateChild({ childrenToGraduate, filters, class: clas
     const [searchTerm, setSearchTerm] = React.useState(filters.search || '');
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Home', href: route('admin.dashboard') },
+        
         { title: 'Children', href: route('admin.children.index') },
         { title: 'Graduate', href: '#' },
     ];
