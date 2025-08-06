@@ -15,6 +15,11 @@ FROM php:8.2-fpm-alpine AS php-base
 RUN apk add --no-cache \
     bash \
     git \
+    zlib-dev \
+    libpng-dev \
+    jpeg-dev \
+    freetype-dev \
+    webp-dev \
     php82-fpm \
     php82-pdo \
     php82-pdo_pgsql \
