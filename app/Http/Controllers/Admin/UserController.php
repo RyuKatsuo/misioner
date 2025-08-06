@@ -43,7 +43,9 @@ class UserController extends Controller
      */
     public function create(): Response
     {
-        $roles = Role::where('name', '!=', 'Superadmin')->get();
+        $roles = Role::where('name', '!=', 'Superadmin')
+            ->where('name', '!=', 'Parent')
+            ->get();
         return Inertia::render('admin/users/create', [
             'roles' => $roles
         ]);
@@ -59,7 +61,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . Admin::class,
-            'role' => 'nullable|string|exists:roles,name|not_in:Superadmin',
+            'role' => 'required|string|exists:roles,name|not_in:Superadmin,Parent',
             'phone_number' => 'required|string|max:15',
             'gender' => 'required|string'
         ]);
