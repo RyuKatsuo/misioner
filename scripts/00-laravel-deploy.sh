@@ -1,17 +1,19 @@
-#!/usr/bin/env bash
-echo "Running composer"
-# Menggunakan --no-dev dan --optimize-autoloader adalah praktik terbaik untuk production
-composer install --no-dev --no-interaction --optimize-autoloader --working-dir=/var/www/html
+#!/bin/sh
+set -e
 
-echo "Caching config..."
+echo "==> Running Laravel Setup Script at Runtime..."
+
+# Pindah ke direktori kerja yang benar
+cd /var/www/html
+
+echo "==> Caching configurations..."
 php artisan config:cache
-
-echo "Caching routes..."
 php artisan route:cache
+php artisan view:cache
 
-# echo "Running migrations..."
+echo "==> Running migrations..."
 # php artisan migrate --force
 
-# Jika Anda ingin menjalankan seeder, hapus tanda # di baris bawah ini
-# echo "Running seeders..."
-# php artisan db:seed --force
+# Anda bisa menambahkan 'php artisan db:seed --force' di sini jika perlu
+
+echo "==> Setup complete. Starting servers..."
