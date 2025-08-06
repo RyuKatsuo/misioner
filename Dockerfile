@@ -33,7 +33,7 @@ RUN apk add --no-cache \
     postgresql-dev
 
 # Sekarang, gunakan docker-php-ext-install. Ini akan berhasil karena peralatannya sudah ada.
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml tokenizer fileinfo ctype dom curl xml
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml
 
 # Instal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
