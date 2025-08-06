@@ -9,7 +9,6 @@ COPY . .
 RUN npm run build
 
 # --- TAHAP 2: BUILDER PHP (COMPOSER + EXTENSIONS) ---
-# Tahap ini kita gunakan untuk menyiapkan semua yang berhubungan dengan PHP
 FROM php:8.2-fpm-alpine AS builder
 WORKDIR /app
 
@@ -33,7 +32,7 @@ RUN apk add --no-cache \
     libxml2-dev \
     postgresql-dev
 
-# Sekarang, gunakan docker-php-ext-install. Seharusnya berhasil.
+# Sekarang, gunakan docker-php-ext-install. Ini akan berhasil karena peralatannya sudah ada.
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml tokenizer fileinfo ctype dom curl xml
 
 # Instal Composer
@@ -45,7 +44,6 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
 
 # --- TAHAP 3: IMAGE PRODUKSI ---
-# Mulai dari image PHP dasar yang sama
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
