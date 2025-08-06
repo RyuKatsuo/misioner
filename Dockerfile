@@ -1,4 +1,4 @@
-# Dockerfile Final: Mengikuti Struktur dari Repositori Referensi
+# Dockerfile Final: Menggunakan tahap 'base' untuk konsistensi
 
 # --- TAHAP 1: BUILD FRONTEND (VITE) ---
 FROM node:18-alpine AS frontend-builder
@@ -8,23 +8,13 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# --- TAHAP 2: BUILD DEPENDENSI PHP (COMPOSER) ---
-FROM php:8.2-fpm-alpine AS composer-builder
-WORKDIR /app
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY database/ database/
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
-
-# --- TAHAP 3: IMAGE PRODUKSI ---
-FROM php:8.2-fpm-alpine
-WORKDIR /var/www/html
-
-# Instal paket sistem: Nginx, Supervisor, dan ekstensi PHP termasuk untuk PostgreSQL
+# --- TAHAP 2: PHP BASE ---
+# TAHAP BARU: Ini adalah fondasi PHP kita yang berisi semua ekstensi.
+FROM php:8.2-fpm-alpine AS php-base
+# Instal paket sistem dan semua ekstensi PHP yang kita butuhkan di sini.
 RUN apk add --no-cache \
-    nginx \
-    supervisor \
     bash \
+    git \
     php82-fpm \
     php82-pdo \
     php82-pdo_pgsql \
@@ -44,6 +34,24 @@ RUN apk add --no-cache \
     php82-posix \
     php82-opcache \
     php82-simplexml
+# Instal Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# --- TAHAP 3: BUILD DEPENDENSI PHP (COMPOSER) ---
+# Sekarang tahap ini dimulai dari 'php-base', jadi semua ekstensi sudah ada.
+FROM php-base AS composer-builder
+WORKDIR /app
+COPY database/ database/
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
+
+# --- TAHAP 4: IMAGE PRODUKSI ---
+# Tahap produksi juga dimulai dari 'php-base' yang bersih.
+FROM php-base AS production-image
+WORKDIR /var/www/html
+
+# Instal Nginx dan Supervisor
+RUN apk add --no-cache nginx supervisor
 
 # Salin kode aplikasi dari konteks build saat ini
 COPY . .
@@ -52,7 +60,7 @@ COPY . .
 COPY --from=composer-builder /app/vendor/ ./vendor/
 COPY --from=frontend-builder /app/public/build/ ./public/build/
 
-# Salin semua file konfigurasi dari folder conf.d
+# Salin semua file konfigurasi
 COPY conf.d/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY conf.d/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY conf.d/php-fpm/php-fpm.conf /etc/php82/php-fpm.d/www.conf
