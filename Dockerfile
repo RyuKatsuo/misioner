@@ -1,58 +1,41 @@
 # --- TAHAP 1: BUILD FRONTEND (VITE) ---
 FROM node:18 AS vite-builder
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
-
 COPY . .
 RUN npm run build
 
-# --- TAHAP 2: INSTALL DEPENDENSI PHP + COMPOSER ---
-FROM php:8.2-cli AS vendor-installer
-WORKDIR /app
-
-# Install ekstensi PHP yang dibutuhkan Laravel
-RUN apt-get update && apt-get install -y \
-    unzip \
-    git \
-    zip \
-    libpng-dev \
-    libjpeg-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip gd
-
-# Install Composer dari image resmi
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy source code Laravel
-COPY . .
-
-# Jalankan composer install
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# --- TAHAP 3: IMAGE PRODUKSI ---
+# --- TAHAP 2: IMAGE PRODUKSI ---
+# Kita sederhanakan, tidak perlu tahap 'vendor-installer' terpisah.
+# Image richarvey sudah termasuk PHP dan Composer.
 FROM richarvey/nginx-php-fpm:1.7.2
 
+# Instal dependensi sistem untuk PostgreSQL
+# PENTING: Image ini sudah punya banyak ekstensi, tapi kita pastikan pgsql ada.
+# Skrip di dalam image ini akan otomatis menginstal ekstensi dari env var.
+ENV PHP_EXTENSION_PDO_PGSQL 1
+ENV PHP_EXTENSION_PGSQL 1
+
+# Salin semua file kode aplikasi
 COPY . /var/www/html
+
+# Salin aset frontend yang sudah di-build
 COPY --from=vite-builder /app/public/build /var/www/html/public/build
-COPY --from=vendor-installer /app/vendor /var/www/html/vendor
 
-# Konfigurasi nginx
+# Salin file konfigurasi Nginx dan skrip deploy
 COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
+COPY scripts/00-laravel-deploy.sh /var/www/html/scripts/00-laravel-deploy.sh
 
-# Environment variable dari Render
-ENV SKIP_COMPOSER 1
+# Atur environment variable untuk mengontrol image
+ENV SKIP_COMPOSER 1 # Kita akan menjalankan composer di dalam skrip kita
 ENV WEBROOT /var/www/html/public
 ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
+ENV RUN_SCRIPTS 1 # Ini yang akan menjalankan 00-laravel-deploy.sh
 ENV REAL_IP_HEADER 1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Cache konfigurasi Laravel
-RUN php /var/www/html/artisan config:cache && \
-    php /var/www/html/artisan route:cache
+# PERINTAH ARTISAN DIHAPUS DARI SINI
+# Cache akan dijalankan oleh skrip 00-laravel-deploy.sh saat runtime
 
 CMD ["/start.sh"]
