@@ -1,34 +1,48 @@
-### Step 1: Node.js for frontend (Vite)
-FROM node:18 AS node-builder
+FROM php:8.3-fpm-alpine
 
-WORKDIR /app
-COPY . .
+# Set working directory
+WORKDIR /opt/laravel
 
-RUN npm install && npm run build
+# Install additional packages
+RUN apk --no-cache add \
+    nginx \
+    supervisor \
+    && docker-php-ext-enable opcache
 
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-### Step 2: PHP for Laravel backend
-FROM php:8.2-fpm
+# Copy Nginx configuration
+COPY conf.d/nginx/default.conf /etc/nginx/nginx.conf
 
-WORKDIR /var/www
+# Copy PHP configuration
+COPY conf.d/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 
-# PERUBAHAN 1: Menghapus paket sqlite dan menambahkan paket postgresql
-RUN apt-get update && apt-get install -y \
-    zip unzip curl git libxml2-dev libzip-dev libpng-dev libjpeg-dev libonig-dev \
-    libpq-dev
+COPY conf.d/php/php.ini /usr/local/etc/php/conf.d/php.ini
 
-# PERUBAHAN 2: Mengganti ekstensi pdo_mysql menjadi pdo_pgsql
-RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+COPY conf.d/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copy Supervisor configuration
+COPY conf.d/supervisor/supervisord.conf /etc/supervisord.conf
 
-COPY . /var/www
-COPY --chown=www-data:www-data . /var/www
+# Copy Laravel application files
+COPY . /opt/laravel
 
-# Copy only built frontend assets (from Vite)
-COPY --from=node-builder /app/public/build /var/www/public/build
+# Set up permissions
+RUN chown -R www-data:www-data /opt/laravel \
+    && chmod -R 755 /opt/laravel/storage
 
-RUN composer install
+# Scheduler setup
 
-EXPOSE 8000
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# Create a log file
+RUN touch /var/log/cron.log
+
+# Add cron job directly to crontab
+RUN echo "* * * * * /usr/local/bin/php /opt/laravel/artisan schedule:run >> /var/log/cron.log 2>&1" | crontab -
+
+# Expose ports
+EXPOSE 80
+
+ADD entrypoint.sh /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
