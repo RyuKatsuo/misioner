@@ -46,7 +46,7 @@ COPY 00-laravel-deploy /00-laravel-deploy
 RUN chmod +x /00-laravel-deploy
 
 # Jalankan deploy script
-RUN /00-laravel-deploy
+RUN scripts/00-laravel-deploy
 
 # Salin konfigurasi nginx
 COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
