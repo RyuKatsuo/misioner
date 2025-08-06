@@ -1,60 +1,36 @@
-# Menggunakan Alpine Linux untuk image yang lebih kecil
-FROM php:8.2-fpm-alpine
+### Step 1: Node.js for frontend (Vite)
+FROM node:18 AS node-builder
 
-# Install sistem dependencies dan PHP extensions
-# Menambahkan libpq-dev untuk support PostgreSQL (Supabase)
-RUN apk add --no-cache \
-    nginx \
-    bash \
-    curl \
-    git \
-    unzip \
-    php82-fpm \
-    php82-pdo \
-    php82-pdo_pgsql \
-    php82-mbstring \
-    php82-tokenizer \
-    php82-xml \
-    php82-curl \
-    php82-dom \
-    php82-fileinfo \
-    php82-json \
-    php82-session \
-    php82-ctype \
-    php82-gd \
-    php82-openssl \
-    php82-zip \
-    php82-phar \
-    php82-posix \
-    php82-opcache \
-    php82-simplexml
-
-# Install Composer secara global
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Buat direktori untuk Laravel dan jadikan direktori kerja
-WORKDIR /var/www/html
-
-# Salin file composer dan install dependensi (untuk caching yang lebih baik)
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
-
-# Salin sisa file project Laravel
+WORKDIR /app
 COPY . .
 
-# Pastikan permission benar untuk folder yang bisa ditulis oleh Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN npm install && npm run build
 
-# Salin file deploy script ke lokasi yang standar (/usr/local/bin) dan beri izin eksekusi
-COPY scripts/00-laravel-deploy.sh /usr/local/bin/deploy.sh
-RUN chmod +x /usr/local/bin/deploy.sh
 
-# Salin konfigurasi nginx
-COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
+### Step 2: PHP for Laravel backend
+FROM php:8.2-fpm
 
-# Expose port 80
-EXPOSE 80
+WORKDIR /var/www
 
-# PERUBAHAN UTAMA: Jalankan deploy script DULU, BARU jalankan server.
-# Ini semua terjadi saat runtime.
-CMD ["sh", "-c", "/usr/local/bin/deploy.sh && php-fpm -D && nginx -g 'daemon off;'"]
+# PERUBAHAN 1: Menghapus paket sqlite dan menambahkan paket postgresql
+RUN apt-get update && apt-get install -y \
+    zip unzip curl git libxml2-dev libzip-dev libpng-dev libjpeg-dev libonig-dev \
+    libpq-dev
+
+# PERUBAHAN 2: Mengganti ekstensi pdo_mysql menjadi pdo_pgsql
+RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY . /var/www
+COPY --chown=www-data:www-data . /var/www
+
+# Copy only built frontend assets (from Vite)
+COPY --from=node-builder /app/public/build /var/www/public/build
+
+RUN composer install
+COPY .env.example .env
+RUN php artisan key:generate
+
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=8000
