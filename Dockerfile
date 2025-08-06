@@ -27,7 +27,7 @@ RUN apk add --no-cache \
     php82-json \
     php82-session \
     php82-ctype \
-    php82-gd \      # <-- PERBAIKAN: Menambahkan ekstensi GD yang hilang
+    php82-gd \
     php82-openssl \
     php82-zip \
     php82-phar \
