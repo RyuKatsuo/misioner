@@ -81,14 +81,14 @@ COPY --from=frontend-builder /app/public/build/ ./public/build/
 COPY conf.d/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY conf.d/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY conf.d/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
-COPY conf.d/php/opcache.ini /etc/php82/conf.d/opcache.ini
+COPY conf.d/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Salin dan beri izin eksekusi pada entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Atur kepemilikan folder
-# RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
 
