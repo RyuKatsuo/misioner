@@ -1,4 +1,4 @@
-# Dockerfile Final: Menggunakan tahap 'base' untuk konsistensi
+# Dockerfile Final (dengan perbaikan ext-gd)
 
 # --- TAHAP 1: BUILD FRONTEND (VITE) ---
 FROM node:18-alpine AS frontend-builder
@@ -9,9 +9,9 @@ COPY . .
 RUN npm run build
 
 # --- TAHAP 2: PHP BASE ---
-# TAHAP BARU: Ini adalah fondasi PHP kita yang berisi semua ekstensi.
+# Fondasi PHP kita yang berisi semua ekstensi.
 FROM php:8.2-fpm-alpine AS php-base
-# Instal paket sistem dan semua ekstensi PHP yang kita butuhkan di sini.
+# Instal paket sistem dan semua ekstensi PHP yang kita butuhkan.
 RUN apk add --no-cache \
     bash \
     git \
@@ -27,7 +27,7 @@ RUN apk add --no-cache \
     php82-json \
     php82-session \
     php82-ctype \
-    php82-gd \
+    php82-gd \      # <-- PERBAIKAN: Menambahkan ekstensi GD yang hilang
     php82-openssl \
     php82-zip \
     php82-phar \
@@ -38,15 +38,15 @@ RUN apk add --no-cache \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # --- TAHAP 3: BUILD DEPENDENSI PHP (COMPOSER) ---
-# Sekarang tahap ini dimulai dari 'php-base', jadi semua ekstensi sudah ada.
+# Dimulai dari 'php-base', jadi semua ekstensi sudah ada.
 FROM php-base AS composer-builder
 WORKDIR /app
 COPY database/ database/
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader -vvv
+RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
 
 # --- TAHAP 4: IMAGE PRODUKSI ---
-# Tahap produksi juga dimulai dari 'php-base' yang bersih.
+# Dimulai dari 'php-base' yang bersih.
 FROM php-base AS production-image
 WORKDIR /var/www/html
 
