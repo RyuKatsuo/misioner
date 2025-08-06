@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     libpng-dev \
     jpeg-dev \
     freetype-dev \
-    webp-dev \
+    libwebp-dev \
     php82-fpm \
     php82-pdo \
     php82-pdo_pgsql \
