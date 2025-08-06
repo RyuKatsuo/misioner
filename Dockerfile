@@ -49,7 +49,7 @@ RUN chmod +x /00-laravel-deploy
 RUN /00-laravel-deploy
 
 # Salin konfigurasi nginx
-COPY nginx-site.conf /etc/nginx/conf.d/default.conf
+COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
