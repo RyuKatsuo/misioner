@@ -1,20 +1,15 @@
-# --- TAHAP 1: BUILD FRONTEND (VITE + REACT) ---
+# TAHAP 1: BUILD FRONTEND (REACT/VITE)
 FROM node:18 AS vite-builder
 WORKDIR /app
-
-# Install dependencies
 COPY package*.json ./
 RUN npm install
-
-# Salin semua kode
 COPY . .
 RUN npm run build
 
-# --- TAHAP 2: INSTALL DEPENDENSI LARAVEL ---
-FROM php:8.2-cli AS vendor-installer
-WORKDIR /app
+# TAHAP 2: INSTALL DEPENDENSI LARAVEL (composer)
+FROM php:8.2-fpm AS php-builder
+WORKDIR /var/www/html
 
-# Install ekstensi PHP yang dibutuhkan Laravel
 RUN apt-get update && apt-get install -y \
     unzip \
     git \
@@ -24,43 +19,40 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpq-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring zip gd
 
-# Install Composer dari image resmi
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy source code Laravel
 COPY . .
-
-# Jalankan composer install
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# --- TAHAP 3: PRODUKSI (NGINX + PHP-FPM) ---
-FROM richarvey/nginx-php-fpm:1.7.2
+# TAHAP 3: FINAL IMAGE DENGAN NGINX + PHP 8.2-FPM
+FROM nginx:stable-alpine AS final
+WORKDIR /var/www/html
 
-# Salin source code Laravel
+# Copy konfigurasi nginx
+COPY conf/nginx/nginx-site.conf /etc/nginx/conf.d/default.conf
+
+# Install PHP-FPM
+RUN apk add --no-cache php8 php8-fpm php8-opcache php8-pdo php8-pdo_mysql \
+    php8-mbstring php8-tokenizer php8-xml php8-curl php8-dom php8-fileinfo \
+    php8-json php8-session php8-ctype php8-gd php8-openssl php8-zip
+
+# Copy source code Laravel
 COPY . /var/www/html
 
-# Salin hasil build Vite
+# Copy folder vendor dari builder
+COPY --from=php-builder /var/www/html/vendor /var/www/html/vendor
+
+# Copy hasil build Vite ke public/
 COPY --from=vite-builder /app/public/build /var/www/html/public/build
 
-# Salin folder vendor hasil composer
-COPY --from=vendor-installer /app/vendor /var/www/html/vendor
+# Jalankan script deploy Laravel
+COPY scripts/00-laravel-deploy.sh /docker-entrypoint.d/00-laravel-deploy.sh
+RUN chmod +x /docker-entrypoint.d/00-laravel-deploy.sh
 
-# Salin konfigurasi nginx kustom
-COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
+# Expose port 80
+EXPOSE 80
 
-# Salin dan aktifkan script deploy Laravel
-COPY scripts/00-laravel-deploy.sh /etc/run-scripts.d/00-laravel-deploy.sh
-RUN chmod +x /etc/run-scripts.d/00-laravel-deploy.sh
-
-# Konfigurasi environment dari Render
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
-ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Jalankan startup bawaan richarvey/nginx-php-fpm
-CMD ["/start.sh"]
+# Jalankan NGINX dan PHP-FPM saat container berjalan
+CMD ["/bin/sh", "-c", "php-fpm8 & nginx -g 'daemon off;'"]
