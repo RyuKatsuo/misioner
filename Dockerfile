@@ -80,7 +80,7 @@ COPY --from=frontend-builder /app/public/build/ ./public/build/
 # Salin semua file konfigurasi
 COPY conf.d/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY conf.d/nginx/default.conf /etc/nginx/http.d/default.conf
-COPY conf.d/php-fpm/php-fpm.conf /etc/php82/php-fpm.d/www.conf
+COPY conf.d/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY conf.d/php/opcache.ini /etc/php82/conf.d/opcache.ini
 
 # Salin dan beri izin eksekusi pada entrypoint script
