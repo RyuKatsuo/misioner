@@ -1,4 +1,4 @@
-# Dockerfile Definitif untuk Laravel, Vite, Supabase di Alpine
+# Dockerfile Definitif (Final) untuk Laravel, Vite, Supabase di Alpine
 
 # --- TAHAP 1: BUILD FRONTEND (VITE) ---
 FROM node:18-alpine AS frontend-builder
@@ -8,29 +8,32 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# --- TAHAP 2: PHP BASE & DEPENDENSI COMPOSER ---
-# Kita gabungkan tahap PHP dan Composer agar lebih sederhana dan konsisten
-FROM php:8.2-fpm-alpine AS composer-builder
+# --- TAHAP 2: BUILDER PHP (COMPOSER + EXTENSIONS) ---
+# Tahap ini kita gunakan untuk menyiapkan semua yang berhubungan dengan PHP
+FROM php:8.2-fpm-alpine AS builder
 WORKDIR /app
 
-# Instal HANYA library sistem (-dev) yang dibutuhkan untuk meng-compile ekstensi PHP
+# Instal semua dependensi build: library -dev DAN build-tools (bison, re2c)
 RUN apk add --no-cache \
     bash \
     git \
     unzip \
     zip \
-    # Dependensi untuk ekstensi GD
+    # Build tools yang dibutuhkan untuk kompilasi ekstensi
+    $PHPIZE_DEPS \
+    bison \
+    re2c \
+    # Library sistem yang dibutuhkan ekstensi
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
     libwebp-dev \
-    # Dependensi untuk ekstensi lain
     libzip-dev \
     oniguruma-dev \
     libxml2-dev \
     postgresql-dev
 
-# SEKARANG, gunakan cara yang benar untuk menginstal ekstensi pada image ini
+# Sekarang, gunakan docker-php-ext-install. Seharusnya berhasil.
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml tokenizer fileinfo ctype dom curl xml
 
 # Instal Composer
@@ -42,7 +45,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
 
 # --- TAHAP 3: IMAGE PRODUKSI ---
-# Mulai dari image PHP dasar yang sama, tapi kita hanya instal paket runtime
+# Mulai dari image PHP dasar yang sama
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
@@ -51,22 +54,26 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     bash \
-    # Library non-dev untuk GD
+    # Library runtime (non-dev)
     libjpeg-turbo \
     libpng \
     freetype \
-    libwebp
+    libwebp \
+    libzip \
+    oniguruma \
+    libxml2 \
+    postgresql-libs
 
-# Salin PHP dan ekstensinya yang sudah terinstal dari base image kita
-COPY --from=composer-builder /usr/local/etc/php /usr/local/etc/php
-COPY --from=composer-builder /usr/local/sbin /usr/local/sbin
-COPY --from=composer-builder /usr/local/bin /usr/local/bin
+# Salin PHP, ekstensinya, dan Composer yang sudah terinstal dari tahap builder
+COPY --from=builder /usr/local/etc/php /usr/local/etc/php
+COPY --from=builder /usr/local/sbin /usr/local/sbin
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Salin kode aplikasi dari konteks build saat ini
 COPY . .
 
-# Salin artefak dari tahap-tahap build sebelumnya
-COPY --from=composer-builder /app/vendor/ ./vendor/
+# Salin artefak dari tahap-tahap build lainnya
+COPY --from=builder /app/vendor/ ./vendor/
 COPY --from=frontend-builder /app/public/build/ ./public/build/
 
 # Salin semua file konfigurasi
