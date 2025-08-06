@@ -30,7 +30,9 @@ RUN apk add --no-cache \
     libzip-dev \
     oniguruma-dev \
     libxml2-dev \
-    postgresql-dev
+    postgresql-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install gd zip pdo pdo_pgsql pgsql mbstring xml
 
 # Sekarang, gunakan docker-php-ext-install. Ini akan berhasil karena peralatannya sudah ada.
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml
@@ -66,6 +68,7 @@ RUN apk add --no-cache \
 COPY --from=builder /usr/local/etc/php /usr/local/etc/php
 COPY --from=builder /usr/local/sbin /usr/local/sbin
 COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /usr/local/lib/php /usr/local/lib/php
 
 # Salin kode aplikasi dari konteks build saat ini
 COPY . .
