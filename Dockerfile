@@ -15,11 +15,18 @@ FROM php:8.2-fpm-alpine AS php-base
 RUN apk add --no-cache \
     bash \
     git \
+    curl \
     zlib-dev \
     libpng-dev \
     jpeg-dev \
     freetype-dev \
     libwebp-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    postgresql-dev \
+    nodejs \
+    npm \
+    php82 \
     php82-fpm \
     php82-pdo \
     php82-pdo_pgsql \
@@ -38,8 +45,8 @@ RUN apk add --no-cache \
     php82-posix \
     php82-opcache \
     php82-simplexml \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install gd pdo pdo_mysql mbstring zip opcache
+    php82-gd
+    
 # Instal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
