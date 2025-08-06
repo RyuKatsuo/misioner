@@ -27,13 +27,14 @@ RUN apk add --no-cache \
     php82-json \
     php82-session \
     php82-ctype \
-    php82-gd \
     php82-openssl \
     php82-zip \
     php82-phar \
     php82-posix \
     php82-opcache \
-    php82-simplexml
+    php82-simplexml \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install gd pdo pdo_mysql mbstring zip opcache
 # Instal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
