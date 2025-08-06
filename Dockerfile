@@ -43,7 +43,7 @@ FROM php-base AS composer-builder
 WORKDIR /app
 COPY database/ database/
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
+RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader -vvv
 
 # --- TAHAP 4: IMAGE PRODUKSI ---
 # Tahap produksi juga dimulai dari 'php-base' yang bersih.
