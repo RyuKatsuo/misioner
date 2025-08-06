@@ -42,8 +42,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Salin file deploy script
-COPY 00-laravel-deploy scripts/00-laravel-deploy.sh
-RUN chmod +x /00-laravel-deploy
+COPY 00-laravel-deploy.sh scripts/00-laravel-deploy.sh
+RUN chmod +x /00-laravel-deploy.sh
 
 # Jalankan deploy script
 RUN /00-laravel-deploy.sh
