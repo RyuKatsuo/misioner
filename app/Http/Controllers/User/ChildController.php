@@ -15,6 +15,8 @@ use Inertia\Response;
 use Intervention\Image\Encoders\AutoEncoder;
 use Intervention\Image\Laravel\Facades\Image;
 
+use function Illuminate\Log\log;
+
 class ChildController extends Controller
 {
     public function index(): Response
@@ -55,6 +57,7 @@ class ChildController extends Controller
             $image = $request->file('avatar');
             $filename = uniqid() . '.' . $image->getClientOriginalExtension();
             $path = 'avatars/children/' . $filename;
+            // dd($path);
 
             $sizeInKb = $image->getSize() / 1024;
 
@@ -83,6 +86,8 @@ class ChildController extends Controller
 
         $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url): null;
         $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url): null;
+        
+        
 
         $data = [
             'child' => $child,
