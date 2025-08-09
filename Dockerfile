@@ -39,25 +39,20 @@ RUN apk add --no-cache \
     libxml2-dev \
     postgresql-dev
 
-# Konfigurasi dan instal semua ekstensi PHP dalam satu langkah yang rapi dan cepat
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) \
-        pdo pdo_pgsql pgsql \
-        gd \
-        zip \
-        mbstring \
-        xml \
-        exif \
-        pcntl \
-        bcmath \
-        opcache \
-        posix \
-        simplexml \
-        tokenizer \
-        fileinfo \
-        ctype \
-        dom \
-        curl
+# Konfigurasi ekstensi yang memerlukan opsi khusus (seperti GD)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp
+
+# Instal HANYA ekstensi yang benar-benar perlu di-compile
+RUN docker-php-ext-install -j$(nproc) \
+    pdo_pgsql \
+    pgsql \
+    gd \
+    zip \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    opcache
 
 # Instal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -108,8 +103,6 @@ COPY conf.d/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY conf.d/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY conf.d/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY conf.d/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-# Menyalin file .ini khusus untuk memastikan driver pdo_pgsql aktif
-COPY conf.d/php/99-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
 
 # Salin dan beri izin eksekusi pada entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
