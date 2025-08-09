@@ -40,6 +40,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
     const logoutRoute = auth.guard === 'admin' ? 'admin.logout' : 'logout';
+    const dashboardRoute = auth.guard === 'admin' ? 'admin.period.index' : 'children.index';
     const getInitials = useInitials();
     return (
         <>
@@ -74,7 +75,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </Sheet>
                     </div>
 
-                    <Link href="/dashboard" prefetch className="flex items-center space-x-2">
+                    <Link href={route(dashboardRoute)} prefetch className="flex items-center space-x-2">
                         <AppLogo />
                     </Link>
 

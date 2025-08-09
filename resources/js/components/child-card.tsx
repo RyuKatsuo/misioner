@@ -41,7 +41,7 @@ export function ChildCard({ child }: { child: Child }) {
                     <StatusBadge child={child} />
                     <Button asChild variant="ghost" size="sm">
                         <Link href={route('children.show', child.id)}>
-                            Detailssss
+                            Detail
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>

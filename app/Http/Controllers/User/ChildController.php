@@ -57,6 +57,7 @@ class ChildController extends Controller
             $image = $request->file('avatar');
             $filename = uniqid() . '.' . $image->getClientOriginalExtension();
             $path = 'avatars/children/' . $filename;
+            // dd($path);
 
             $sizeInKb = $image->getSize() / 1024;
 
