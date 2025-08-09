@@ -32,6 +32,8 @@ chown -R www-data:www-data /var/run/php
 
 # --- 3. Optimasi Laravel ---
 cd /var/www/html
+php artisan storage:link
+
 echo "Running Laravel optimizations..."
 php artisan config:cache
 php artisan route:cache
