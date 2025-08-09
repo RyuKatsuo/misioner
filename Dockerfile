@@ -1,6 +1,10 @@
-# Dockerfile Definitif (Final) untuk Laravel, Vite, Supabase di Alpine
+# =================================================================
+# Dockerfile Definitif untuk Laravel, Vite, dan Supabase (PostgreSQL)
+# =================================================================
 
 # --- TAHAP 1: BUILD FRONTEND (VITE) ---
+# Menggunakan Node.js untuk meng-compile aset frontend
+# -----------------------------------------------------------------
 FROM node:18-alpine AS frontend-builder
 WORKDIR /app
 COPY package*.json ./
@@ -8,11 +12,14 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+
 # --- TAHAP 2: BUILDER PHP (COMPOSER + EXTENSIONS) ---
+# Menginstal dependensi Composer dan meng-compile ekstensi PHP
+# -----------------------------------------------------------------
 FROM php:8.2-fpm-alpine AS builder
 WORKDIR /app
 
-# Instal semua dependensi build: library -dev DAN build-tools (bison, re2c)
+# Instal semua dependensi build: library -dev DAN build-tools
 RUN apk add --no-cache \
     bash \
     git \
@@ -30,12 +37,27 @@ RUN apk add --no-cache \
     libzip-dev \
     oniguruma-dev \
     libxml2-dev \
-    postgresql-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install gd zip pdo pdo_pgsql pgsql mbstring xml
+    postgresql-dev
 
-# Sekarang, gunakan docker-php-ext-install. Ini akan berhasil karena peralatannya sudah ada.
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip opcache posix simplexml
+# Konfigurasi dan instal semua ekstensi PHP dalam satu langkah yang rapi dan cepat
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+        pdo pdo_pgsql pgsql \
+        gd \
+        zip \
+        mbstring \
+        xml \
+        exif \
+        pcntl \
+        bcmath \
+        opcache \
+        posix \
+        simplexml \
+        tokenizer \
+        fileinfo \
+        ctype \
+        dom \
+        curl
 
 # Instal Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -45,7 +67,10 @@ COPY database/ database/
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader
 
-# --- TAHAP 3: IMAGE PRODUKSI ---
+
+# --- TAHAP 3: IMAGE PRODUKSI FINAL ---
+# Merakit image akhir yang ramping dengan semua yang dibutuhkan untuk runtime
+# -----------------------------------------------------------------
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
@@ -71,27 +96,33 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/lib/php /usr/local/lib/php
 
 # Salin kode aplikasi dari konteks build saat ini
+# Pastikan Anda memiliki file .dockerignore agar tidak menyalin folder yang tidak perlu
 COPY . .
 
 # Salin artefak dari tahap-tahap build lainnya
 COPY --from=builder /app/vendor/ ./vendor/
 COPY --from=frontend-builder /app/public/build/ ./public/build/
 
-# Salin semua file konfigurasi
+# Salin semua file konfigurasi ke path yang benar
 COPY conf.d/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY conf.d/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY conf.d/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY conf.d/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+# Menyalin file .ini khusus untuk memastikan driver pdo_pgsql aktif
+COPY conf.d/php/99-overrides.ini /usr/local/etc/php/conf.d/99-overrides.ini
 
 # Salin dan beri izin eksekusi pada entrypoint script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Atur kepemilikan folder
+# Atur kepemilikan folder agar bisa ditulis oleh PHP-FPM dan Worker
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Expose port (meskipun Render menggunakan port dinamis, ini adalah praktik yang baik)
 EXPOSE 80
 
+# Gunakan entrypoint untuk konfigurasi dinamis saat runtime
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
+# Jalankan supervisord sebagai perintah utama
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -1,0 +1,17 @@
+# Dockerfile.dev
+# Resep untuk membangun image PHP khusus development
+
+# Mulai dari image PHP dasar yang sama
+FROM php:8.2-fpm-alpine
+
+# Tetapkan direktori kerja
+WORKDIR /var/www/html
+
+# Instal dependensi sistem yang dibutuhkan untuk ekstensi PostgreSQL
+RUN apk add --no-cache $PHPIZE_DEPS postgresql-dev
+
+# Instal ekstensi PHP untuk PostgreSQL (pdo_pgsql)
+RUN docker-php-ext-install pdo_pgsql
+
+# (Opsional) Instal Composer agar tersedia di dalam kontainer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
