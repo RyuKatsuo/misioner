@@ -32,11 +32,14 @@ class ChildrenAdminController extends Controller
                     $subq->where('name', 'ilike', "%{$search}%")
                         ->orWhereHas('parent', function ($parentQuery) use ($search) {
                             $parentQuery->where('name', 'ilike', "%{$search}%");
+                        })
+                        ->orWhereHas('classModel', function ($classQuery) use ($search) {
+                            $classQuery->where('class_name', 'ilike', "%{$search}%");
                         });
                 });
             });
 
-        $childrens = $query->latest()->paginate(10)->withQueryString();
+        $childrens = $query->orderBy('name')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/children/index', [
             'childrens' => $childrens,

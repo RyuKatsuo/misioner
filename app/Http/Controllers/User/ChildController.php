@@ -41,7 +41,7 @@ class ChildController extends Controller
 
     public function show(Child $child): Response
     {
-        $child->load(['scores.task', 'parent', 'classModel.period', 'attendances']);
+        $child->load(['scores.task', 'parent', 'classModel.period', 'attendances', 'graduate']);
 
         return Inertia::render('admin/children/show', [
             'child' => $child

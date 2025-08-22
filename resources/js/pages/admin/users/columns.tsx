@@ -93,7 +93,7 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<User>[] =
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                                <Link href={route('admin.users.index', user.id)}>Edit User</Link>
+                                {/* <Link href={route('admin.users.index', user.id)}>Edit User</Link> */}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
