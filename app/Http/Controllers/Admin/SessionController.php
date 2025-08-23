@@ -40,6 +40,7 @@ class SessionController extends Controller
                 $query->where('is_active', true);
             })
             ->get(['id', 'class_name',]);
+        
 
         return Inertia::render('admin/session/index', [
             'sessions' => $sessions,
@@ -105,41 +106,78 @@ class SessionController extends Controller
         ]);
     }
 
-    public function edit(Session $session): Response
+    public function edit(Session $session)
     {
-        $session->load(['attendances.child', 'classModel']);
+        // Muat relasi kelas, dan semua anak yang terdaftar di kelas tersebut
+        $session->load('classModel.childrens');
+
+        // Ambil semua anak dari kelas ini
+        $childrenInClass = $session->classModel->childrens;
+
+        // Buat koleksi data kehadiran yang LENGKAP untuk form
+        $attendanceDataForForm = $childrenInClass->map(function ($child) use ($session) {
+            // Cari data kehadiran yang sudah ada untuk anak ini di sesi ini
+            $attendance = $session->attendances()->where('children_id', $child->id)->first();
+
+            return [
+                'id'         => $attendance ? $attendance->id : null,
+                'child_id'   => $child->id,
+                'child_name' => $child->name,
+                'status'     => $attendance ? $attendance->status->value : 'Absent', // Default status
+            ];
+        });
+
+        // Kirim data yang sudah lengkap ini ke frontend
         return Inertia::render('admin/session/edit', [
-            'session' => $session
+            'session'         => $session,
+            'attendance_data' => $attendanceDataForForm,
         ]);
     }
 
     public function update(UpdateSessionRequest $request, Session $session): RedirectResponse
     {
         $validated = $request->validated();
+                // dd($validated);
 
-        // Update topik sesi
-        $session->topic = $validated['topic'];
-        $session->save();
 
-        // Update status kehadiran setiap anak
-        foreach ($validated['attendances'] as $attendanceData) {
-            $attendance = Attendance::find($attendanceData['id']);
-            $child = Child::where('id', $attendance->children_id)->first();
-            // dd($child);
+        // Gunakan DB Transaction untuk memastikan semua operasi berhasil atau tidak sama sekali
+        DB::transaction(function () use ($validated, $session) {
+            // Update topik sesi
+            $session->update([
+                'topic' => $validated['topic'],
+            ]);
 
-            if ($attendance && $attendance->session_id === $session->id) {
-                $attendance->status = $attendanceData['status'];
+            // Proses setiap data kehadiran dari form
+            foreach ($validated['attendances'] as $attendanceData) {
+                // Cek apakah anak ada (jika ID anak dikirim dari form)
+                $child = Child::find($attendanceData['child_id']); // Asumsi 'child_id' ada di form
 
-                $attendance->save();
+                if (!$child) continue; // Lewati jika anak tidak ditemukan
 
+                // Gunakan updateOrCreate untuk menangani anak lama dan anak baru
+                $newAttendance = Attendance::updateOrCreate(
+                    [
+                        // Kondisi untuk mencari record: cocokkan sesi DAN anak
+                        'session_id'  => $session->id,
+                        'children_id' => $child->id,
+                    ],
+                    [
+                        // Data yang akan di-update atau di-create
+                        'status' => $attendanceData['status'],
+                    ]
+                );
+
+                // Setelah update/create, hitung ulang total kehadiran anak
+                // Ini adalah pendekatan yang lebih baik daripada increment/decrement
                 $newAttendanceCount = Attendance::where('children_id', $child->id)
                     ->whereIn('status', ['Present', 'Late'])
                     ->count();
 
-                $child->attendance_count = $newAttendanceCount;
-                $child->save();
+                $child->update([
+                    'attendance_count' => $newAttendanceCount
+                ]);
             }
-        }
+        });
 
         return to_route('admin.session.show', $session->id)->with('success', 'Session updated successfully.');
     }

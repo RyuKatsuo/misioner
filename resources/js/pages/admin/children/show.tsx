@@ -34,7 +34,7 @@ export default function ShowChild({ child }: Props) {
     } else{
         childrenStatus = child.is_active ? "Active" : "Inactive"
     }
-    console.log(child);
+    // console.log(child);
     
 
     return (
