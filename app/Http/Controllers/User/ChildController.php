@@ -9,6 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,7 +42,34 @@ class ChildController extends Controller
 
     public function show(Child $child): Response
     {
-        $child->load(['scores.task', 'parent', 'classModel.period', 'attendances', 'graduate']);
+        $child->load(['scores.task', 'parent', 'classModel.period', 'graduate']);
+
+        $currentClassId = $child->class_id;
+
+        $child->load(['attendances' => function ($query) use ($currentClassId) {
+            $query->whereHas('session', function ($subQuery) use ($currentClassId) {
+                $subQuery->where('class_id', $currentClassId);
+            })
+                ->orderBy('created_at', 'desc');
+        }]);
+
+        $child->attendance_count_in_class = $child->attendances()
+            ->whereHas('session', fn($q) => $q->where('class_id', $currentClassId))
+            ->where(function ($q) {
+                $q->whereIn(DB::raw('LOWER(TRIM(status))'), ['present', 'late']);
+
+                if (class_exists(\App\Enums\AttendanceStatus::class)) {
+                    $q->orWhereIn('status', [
+                        \App\Enums\AttendanceStatus::Present,
+                        \App\Enums\AttendanceStatus::Late,
+                    ]);
+                }
+            })
+            ->count();
+
+        $child->total_score = $child->scores()->sum('score');
+        // dd($child->attendance_count_in_class, $child->attendances);
+
 
         return Inertia::render('admin/children/show', [
             'child' => $child
@@ -53,7 +81,7 @@ class ChildController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('avatar')) {
-            
+
             $image = $request->file('avatar');
             $filename = uniqid() . '.' . $image->getClientOriginalExtension();
             $path = 'avatars/children/' . $filename;
@@ -84,10 +112,10 @@ class ChildController extends Controller
     {
         $child->load('classModel');
 
-        $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url): null;
-        $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url): null;
-        
-        
+        $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url) : null;
+        $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url) : null;
+
+
 
         $data = [
             'child' => $child,
@@ -95,7 +123,7 @@ class ChildController extends Controller
             'qrCodeBase64' => $qrCodePath,
         ];
 
-        $filename = 'ID Card - '. $child->name . '.pdf';
+        $filename = 'ID Card - ' . $child->name . '.pdf';
         $pdf = Pdf::loadView('pdf.id_card', $data);
 
         return $pdf->download($filename);

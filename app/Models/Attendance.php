@@ -55,8 +55,8 @@ class Attendance extends Model
     /**
      * Satu catatan kehadiran milik satu sesi.
      */
-    // public function session(): BelongsTo
-    // {
-    //     return $this->belongsTo(Session::class);
-    // }
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(Session::class);
+    }
 }

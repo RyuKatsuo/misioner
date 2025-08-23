@@ -28,19 +28,24 @@ class SessionController extends Controller
             $query->where('created_by', $user->id);
         }
 
+        // Tambahkan filter search
+        if ($search = $request->input('search')) {
+            $query->whereHas('classModel', function ($q) use ($search) {
+                $q->where('class_name', 'like', "%{$search}%");
+            });
+        }
+
         $sessions = $query
             ->latest('session_date')
             ->latest('created_at')
             ->paginate(10);
 
         // Data kelas untuk form 'create'
-        // menampilkan kelas yang periodenya aktif dan memili lebih dari 1 anak
         $classes = ClassModel::whereHas('childrens')
             ->whereHas('period', function ($query) {
                 $query->where('is_active', true);
             })
-            ->get(['id', 'class_name',]);
-        
+            ->get(['id', 'class_name']);
 
         return Inertia::render('admin/session/index', [
             'sessions' => $sessions,
@@ -48,6 +53,7 @@ class SessionController extends Controller
             'filters' => $request->only(['search'])
         ]);
     }
+
 
     public function store(Request $request): RedirectResponse
     {
@@ -137,7 +143,7 @@ class SessionController extends Controller
     public function update(UpdateSessionRequest $request, Session $session): RedirectResponse
     {
         $validated = $request->validated();
-                // dd($validated);
+        // dd($validated);
 
 
         // Gunakan DB Transaction untuk memastikan semua operasi berhasil atau tidak sama sekali

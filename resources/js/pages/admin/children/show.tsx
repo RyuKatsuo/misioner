@@ -99,7 +99,7 @@ export default function ShowChild({ child }: Props) {
                         <CardContent className="grid grid-cols-2 gap-4">
                             <div className="rounded-lg border p-4 text-center">
                                 <p className="text-sm text-muted-foreground">Attendance</p>
-                                <p className="text-2xl font-bold">{child.attendance_count}</p>
+                                <p className="text-2xl font-bold">{child.attendance_count_in_class}</p>
                             </div>
                             <div className="rounded-lg border p-4 text-center">
                                 <p className="text-sm text-muted-foreground">Total Score</p>
