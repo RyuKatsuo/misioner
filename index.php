@@ -1,1 +1,1 @@
-<?= phpinfo(); ?>
+<?= "Lorem Ipsum Dolor Sit Amet"; ?>
