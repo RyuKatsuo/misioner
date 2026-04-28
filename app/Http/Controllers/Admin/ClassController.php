@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\ClassAttendanceExport;
-use App\Http\Controllers\Controller;    
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreClassRequest;
 use App\Http\Requests\Admin\UpdateClassRequest;
 use App\Models\ClassModel;
@@ -83,6 +83,22 @@ class ClassController extends Controller
             },
         ]);
 
+        // Ambil ID anak-anak di kelas ini
+        $children = $classWithStats->childrens()
+            ->with('graduate') // relasi graduate
+            ->withCount([
+                // attendance_count khusus kelas ini
+                'attendances as attendance_count_in_class' => function ($q) use ($class) {
+                    $q->whereHas('session', fn($s) => $s->where('class_id', $class->id))
+                        ->whereIn('status', ['Present', 'Late']);
+                },
+            ])
+            ->withSum('scores as total_score', 'score') // total_score tiap anak
+            ->get();
+
+        // Inject children yang sudah ada field attendance_count & total_score
+        $classWithStats->setRelation('childrens', $children);
+
         return Inertia::render('admin/class/show', [
             'class' => $classWithStats,
         ]);
@@ -98,7 +114,7 @@ class ClassController extends Controller
     {
         // Buat nama file yang dinamis
         $fileName = 'Rekap Kehadiran - ' . $class->class_name . ' - ' . now()->format('Y-m-d') . '.xlsx';
-        
+
         // Panggil kelas Export dan unduh filenya
         return Excel::download(new ClassAttendanceExport($class), $fileName);
     }

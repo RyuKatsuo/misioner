@@ -82,7 +82,7 @@ export default function ChildrenIndex({ childrens: childrens, filters }: Props) 
                     data={childrens}
                     filters={filters}
                     searchRouteName="admin.children.index"
-                    searchPlaceholder="Search by child or parent name..."
+                    searchPlaceholder="Search by child or parent name or class name..."
                 />
             </div>
 
