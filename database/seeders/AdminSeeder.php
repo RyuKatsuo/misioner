@@ -17,11 +17,11 @@ class AdminSeeder extends Seeder
     {
         $superadmin = Admin::create([
 
-            'name' => "ananda admin",
+            'name' => "developer",
             'email' => "anandaandreas11@gmail.com",
-            'password' => Hash::make('qweqweqwe'),
+            'password' => Hash::make('Secret*123'),
             'phone_number'=> "0820203012",
-            'address' => fake()->address(),
+            'address' => "asdasdasdas",
             'gender' => 'Male'
         ]);
 

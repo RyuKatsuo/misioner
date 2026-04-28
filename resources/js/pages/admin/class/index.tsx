@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import ManagementLayout from '@/layouts/management-layout';
-import { type ClassModel, PaginatedResponse, type BreadcrumbItem } from '@/types';
+import { type ClassModel, PaginatedResponse, type BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table'; // Impor DataTable generik
 import { getColumns } from './partials/columns'; // Impor definisi kolom
@@ -24,6 +24,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function ClassIndex({ classes, filters }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     const [classToDelete, setClassesToDelete] = React.useState<ClassModel | null>(null);
 
     const handleDelete = () => {
@@ -42,13 +45,11 @@ export default function ClassIndex({ classes, filters }: Props) {
 
     const columns = React.useMemo(
         () => getColumns({
+            permissions: userPermissions,
             onDeleteClick: (classes) => setClassesToDelete(classes)
         }),
         []
     );
-
-    const { auth } = usePage<SharedData>().props;
-    const userPermissions = auth.user.permissions;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -59,7 +60,7 @@ export default function ClassIndex({ classes, filters }: Props) {
                         <h1 className="text-2xl font-semibold">Classes</h1>
                         <p className="text-muted-foreground">Manage all Classes in the system.</p>
                     </div>
-                    {userPermissions.includes('admin.period.create') && (
+                    {userPermissions.includes('admin.class.create') && (
                         <Link href={route('admin.class.create')}>
                             <Button>
                                 <PlusCircle className="mr-2 h-4 w-4" />

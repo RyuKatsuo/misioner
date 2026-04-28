@@ -83,6 +83,36 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
+    public function edit(Admin $admin): Response
+    {
+        $roles = Role::where('name', '!=', 'Superadmin')
+            ->where('name', '!=', 'Parent')
+            ->get();
+
+        return Inertia::render('admin/users/edit', [
+            'admin' => $admin->load('roles'),
+            'roles' => $roles
+        ]);
+    }
+
+    public function update(Request $request, Admin $admin): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:' . Admin::class . ',email,' . $admin->id,
+            'role' => 'required|string|exists:roles,name|not_in:Superadmin,Parent',
+            'phone_number' => 'required|string|max:15'
+        ]);
+
+        $admin->update($request->only(['name', 'email', 'phone_number']));
+
+        if ($request->filled('role')) {
+            $admin->syncRoles($request->role);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+    }
+
     public function destroy(Admin $admin): RedirectResponse
     {
         try {

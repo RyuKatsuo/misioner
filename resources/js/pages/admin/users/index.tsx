@@ -1,6 +1,6 @@
 import * as React from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { PageProps, PaginatedResponse, type User, type BreadcrumbItem } from '@/types';
+import { PageProps, PaginatedResponse, type User, type BreadcrumbItem, SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './columns';
@@ -22,6 +22,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ users, filters }: IndexUsersProps) {
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     // --- State untuk dialog sekarang ada di sini ---
     const [userToDelete, setUserToDelete] = React.useState<User | null>(null);
     const { flash } = usePage<PageProps & { flash: { success?: string } }>().props;
@@ -64,13 +67,13 @@ export default function Index({ users, filters }: IndexUsersProps) {
 
     const columns = React.useMemo(
         () => getColumns({
-            onDeleteClick: (user) => setUserToDelete(user)
+            onDeleteClick: (user) => setUserToDelete(user),
+            permissions: userPermissions,
         }),
         []
     );
 
-    const { auth } = usePage<SharedData>().props;
-    const userPermissions = auth.user.permissions;
+
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -106,11 +109,10 @@ export default function Index({ users, filters }: IndexUsersProps) {
                     data={users}
                     filters={filters}
                     searchRouteName="admin.users.index"
-                    searchPlaceholder="Filter by user name and email..."
+                    searchPlaceholder="Filter by user name or email..."
                 />
             </div>
 
-            {/* --- Dialog Konfirmasi sekarang ada di sini, di luar tabel --- */}
             <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
                 <AlertDialogContent forceMount>
                     <AlertDialogHeader>

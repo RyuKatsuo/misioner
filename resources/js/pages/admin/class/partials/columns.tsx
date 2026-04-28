@@ -1,6 +1,6 @@
 "use client"
 
-import { type ClassModel} from "@/types";
+import { type ClassModel } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react";
@@ -11,12 +11,13 @@ import { Badge } from "@/components/ui/badge";
 
 type ColumnsProps = {
     onDeleteClick: (classes: ClassModel) => void;
+    permissions: any[];
 }
 
 
 
 // Fungsi ini sekarang menerima props
-export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<ClassModel>[] => [
+export const getColumns = ({ onDeleteClick, permissions }: ColumnsProps): ColumnDef<ClassModel>[] => [
     {
         accessorKey: "class_name",
         header: "Class Name",
@@ -39,8 +40,9 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<ClassMode
         enableHiding: false,
         cell: ({ row }) => {
             const classes = row.original;
-            // console.log(user);
-            
+            const canEdit = permissions.includes('admin.class.edit');
+            const canDelete = permissions.includes('admin.class.delete');
+
 
             return (
                 <div className="text-right">
@@ -52,21 +54,23 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<ClassMode
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            {canEdit && (
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('admin.class.edit', classes.id)}>Edit</Link>
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem asChild>
-                                <Link href={route('admin.class.edit', classes.id)}>Edit class</Link>
+                                <Link href={route('admin.class.show', classes.id)}>Detail</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Link href={route('admin.class.show', classes.id)}>Detail class</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onSelect={() => onDeleteClick(classes)}
-                            >
-                                Delete class
-                            </DropdownMenuItem>
+                            {canDelete && (
+                                <DropdownMenuItem
+                                    asChild
+                                    className="text-red-600 focus:text-red-600"
+                                    onSelect={() => onDeleteClick(classes)}
+                                >
+                                    Delete class
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

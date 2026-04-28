@@ -1,5 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type ClassModel, type Child } from '@/types';
+import { type BreadcrumbItem, type ClassModel, type Child, SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -33,6 +33,10 @@ export default function ShowClass({ class: classData }: Props) {
         { title: 'Details', href: '#' },
     ];
 
+    
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     const [childToUnenroll, setChildToUnenroll] = React.useState<Child | null>(null)
     const [childToUngraduate, setChildToUngraduate] = React.useState<Child | null>(null)
 
@@ -56,10 +60,6 @@ export default function ShowClass({ class: classData }: Props) {
         });
     }
 
-    const { auth } = usePage<SharedData>().props;
-    const userPermissions = auth.user.permissions;
-
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Class Details: ${classData.class_name}`} />
@@ -79,7 +79,6 @@ export default function ShowClass({ class: classData }: Props) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                         <DropdownMenuItem asChild>
                                             <Link href={route('admin.class.graduate.form', classData.id)}>Graduate Child</Link>
                                         </DropdownMenuItem>
@@ -187,27 +186,28 @@ export default function ShowClass({ class: classData }: Props) {
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
                                                             <Link href={route('children.show', child.id)}>
-
-                                                                Detail Children
+                                                                Detail
                                                             </Link>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="text-red-600 focus:text-red-600"
-                                                            onSelect={() => setChildToUngraduate(child)}
-                                                            disabled={!child.graduate}
-                                                        >
+                                                        {userPermissions.includes('admin.class.ungraduate') && (
+                                                            <DropdownMenuItem
+                                                                className="text-red-600 focus:text-red-600"
+                                                                onSelect={() => setChildToUngraduate(child)}
+                                                                disabled={!child.graduate}
+                                                            >
                                                             Remove Graduate Status
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            className="text-red-600 focus:text-red-600"
-                                                            onSelect={() => setChildToUnenroll(child)}
-                                                        >
-                                                            Remove from Class
-                                                        </DropdownMenuItem>
+                                                        )}
+                                                        {userPermissions.includes('admin.class.unenroll') && (
+                                                            <DropdownMenuItem
+                                                                className="text-red-600 focus:text-red-600"
+                                                                onSelect={() => setChildToUnenroll(child)}
+                                                            >
+                                                                Remove from Class
+                                                            </DropdownMenuItem>
+                                                        )}
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -215,7 +215,7 @@ export default function ShowClass({ class: classData }: Props) {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={3} className="h-24 text-center">
+                                        <TableCell colSpan={7} className="h-24 text-center">
                                             No children in this class.
                                         </TableCell>
                                     </TableRow>

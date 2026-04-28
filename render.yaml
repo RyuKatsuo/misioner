@@ -1,0 +1,38 @@
+# render.yaml - Konfigurasi untuk Docker Deployment
+
+services:
+  - type: web
+    name: misioner
+    # Beritahu Render untuk menggunakan Docker, bukan native runtime
+    runtime: docker
+    # Render akan secara otomatis mencari dan menggunakan Dockerfile di root proyek
+    plan: free # atau starter
+    region: singapore
+    healthCheckPath: /up
+    healthCheckInitialDelaySeconds: 300
+    envVars:
+      # Variabel lingkungan Anda akan disuntikkan ke dalam container Docker
+      - key: APP_URL
+        value: https://misioner.onrender.com
+      - key: APP_KEY # PENTING: Set nilainya di dashboard Render
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      
+      # Variabel Database Supabase
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-0-ap-southeast-1.pooler.supabase.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.oqlrpnapiuthmfwiubii
+      - key: DB_PASSWORD # PENTING: Set nilainya di dashboard Render
+        sync: false

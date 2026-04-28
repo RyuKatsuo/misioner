@@ -11,12 +11,13 @@ import { Badge } from "@/components/ui/badge";
 
 type ColumnsProps = {
     onDeleteClick: (period: Period) => void;
+    permissions: string[];
 }
 
 
 
 // Fungsi ini sekarang menerima props
-export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Period>[] => [
+export const getColumns = ({ onDeleteClick, permissions }: ColumnsProps): ColumnDef<Period>[] => [
     {
         accessorKey: "name",
         header: "Name",
@@ -55,7 +56,8 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Period>[]
         cell: ({ row }) => {
             const period = row.original;
             // console.log(user);
-            
+            const canEdit = permissions.includes('admin.period.edit');
+            const canDelete = permissions.includes('admin.period.delete');
 
             return (
                 <div className="text-right">
@@ -67,20 +69,24 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Period>[]
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                                <Link href={route('admin.period.edit', period.id)}>Edit Period</Link>
-                            </DropdownMenuItem>
+                            {canEdit && (
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('admin.period.edit', period.id)}>Edit</Link>
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem>
-                                <Link href={route('admin.period.show', period.id)}>View Detail</Link>
+                                <Link href={route('admin.period.show', period.id)}>Detail</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onSelect={() => onDeleteClick(period)}
-                            >
-                                Delete Period
-                            </DropdownMenuItem>
+                            {canDelete && (
+                                <DropdownMenuItem
+                                    className="text-red-600 focus:text-red-600"
+                                    onSelect={() => onDeleteClick(period)}
+                                    asChild
+                                >
+                                    Delete Period
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

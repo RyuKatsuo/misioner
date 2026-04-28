@@ -14,6 +14,13 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    server: {
+        host: '0.0.0.0', // <-- 4. Izinkan koneksi dari luar localhost
+        cors: true,      // <-- 5. Izinkan semua origin (CORS)
+        hmr: {
+            host: 'localhost',       // <-- 7. Gunakan WebSocket Secure
+        },
+    },
     esbuild: {
         jsx: 'automatic',
     },

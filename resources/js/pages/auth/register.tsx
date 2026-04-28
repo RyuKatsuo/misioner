@@ -37,6 +37,7 @@ interface RegisterProps extends PageProps {
 
 export default function Register({ communities }: RegisterProps) {
     const [step, setStep] = React.useState(1);
+    const [disableNext, setDisableNext] = React.useState(true);
 
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
@@ -51,14 +52,33 @@ export default function Register({ communities }: RegisterProps) {
         outside_community_address: '',
     });
 
+    const step1Fields: (keyof RegisterForm)[] = ['name', 'email', 'password', 'password_confirmation'];
+    const step2Fields: (keyof RegisterForm)[] = ['phone_number', 'gender', 'date_of_birth'];
+
+    // Hook untuk validasi step 
+    React.useEffect(() => {
+        let shouldDisable = true;
+        if (step === 1) {
+            shouldDisable = step1Fields.some((field) => !data[field]);
+        } else if (step === 2) {
+            shouldDisable = step2Fields.some((field) => !data[field]);
+        } else if (step === 3) {
+            if (data.community_option === 'listed') {
+                shouldDisable = !data.community_id;
+            } else if (data.community_option === 'outside') {
+                shouldDisable = !data.outside_community_address;
+            } else {
+                setDisableNext(true);
+            }
+        };
+        setDisableNext(shouldDisable);
+    }, [data, step]);
+
     // Hook untuk secara otomatis pindah ke step yang error
     React.useEffect(() => {
         const errorKeys = Object.keys(errors);
         if (errorKeys.length > 0) {
             const firstErrorKey = errorKeys[0] as keyof RegisterForm;
-
-            const step1Fields: (keyof RegisterForm)[] = ['name', 'email', 'password', 'password_confirmation'];
-            const step2Fields: (keyof RegisterForm)[] = ['phone_number', 'gender', 'date_of_birth'];
 
             if (step1Fields.includes(firstErrorKey)) {
                 setStep(1);
@@ -79,16 +99,15 @@ export default function Register({ communities }: RegisterProps) {
     const communityOptions = communities.map((c) => ({ value: c.id, label: c.community_name }));
 
     return (
-        <AuthLayout title="Create an account" description="Join us by filling out the form below.">
+        <AuthLayout title="Daftar akun orang tua" description="Isi form berikut untuk membuat akun baru">
             <Head title="Register" />
-            <form onSubmit={submit}>
-                <Card>
+            <form onSubmit={submit} className='flex flex-col gap-6'>
+                <Card className='grid gap-6'>
                     <CardHeader>
-                        <CardTitle>Daftar Orang Tua</CardTitle>
                         <CardDescription>Step {step} of 3</CardDescription>
                         <Progress value={(step / 3) * 100} className="mt-2" />
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 max-w-full">
                         {/* Step 1: Account Credentials */}
                         {step === 1 && (
                             <div className="space-y-4">
@@ -102,18 +121,15 @@ export default function Register({ communities }: RegisterProps) {
                                     <Input id="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} required />
                                     <InputError message={errors.email} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="password">Password</Label>
-                                        <Input id="password" type="password" value={data.password} onChange={(e) => setData('password', e.target.value)} required />
-                                        <InputError message={errors.password} />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="password_confirmation">Confirm Password</Label>
-                                        <Input id="password_confirmation" type="password" value={data.password_confirmation} onChange={(e) => setData('password_confirmation', e.target.value)} required />
-                                        <InputError message={errors.password} />
-
-                                    </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Input id="password" type="password" value={data.password} onChange={(e) => setData('password', e.target.value)} required />
+                                    <InputError message={errors.password} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password_confirmation">Konfirmasi Password</Label>
+                                    <Input id="password_confirmation" type="password" value={data.password_confirmation} onChange={(e) => setData('password_confirmation', e.target.value)} required />
+                                    <InputError message={errors.password} />
                                 </div>
                             </div>
                         )}
@@ -121,23 +137,31 @@ export default function Register({ communities }: RegisterProps) {
                         {/* Step 2: Personal Information */}
                         {step === 2 && (
                             <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="phone_number">Nomer Telephone</Label>
-                                        <Input id="phone_number" type="tel" value={data.phone_number} onChange={(e) => setData('phone_number', e.target.value)} required />
-                                        <InputError message={errors.phone_number} />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="gender">Jenis Kelamin</Label>
-                                        <Select onValueChange={(value) => setData('gender', value)} value={data.gender} required>
-                                            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Male">Male</SelectItem>
-                                                <SelectItem value="Female">Female</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <InputError message={errors.gender} />
-                                    </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="phone_number">Nomer Telephone</Label>
+                                    <Input id="phone_number" type="tel" value={data.phone_number} onChange={
+                                        (e) => {
+                                            const value = e.target.value;
+                                            if (/^\d*$/.test(value)) {
+                                                setData('phone_number', value);
+                                            }
+                                        }
+                                    } required />
+                                    <InputError message={errors.phone_number} />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="gender">Jenis Kelamin</Label>
+                                    <RadioGroup onValueChange={(value) => setData('gender', value)} value={data.gender} className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="Male" id="male" />
+                                            <Label htmlFor="male">Laki-laki</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="Female" id="female" />
+                                            <Label htmlFor="female">Perempuan</Label>
+                                        </div>
+                                    </RadioGroup>
+                                    <InputError message={errors.gender} />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="date_of_birth">Tanggal Lahir</Label>
@@ -153,27 +177,31 @@ export default function Register({ communities }: RegisterProps) {
                         {/* Step 3: Community Information */}
                         {step === 3 && (
                             <div className="space-y-4">
-                                <Label>Lingkungan</Label>
-                                <RadioGroup onValueChange={(value: 'listed' | 'outside') => setData('community_option', value)} value={data.community_option}>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="listed" id="listed" /><Label htmlFor="listed">Saya berasal dari paroki St. Antonius Padua Kotabaru</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="outside" id="outside" /><Label htmlFor="outside">Saya dari luar paroki St. Antonius Padua Kotabaru</Label></div>
-                                </RadioGroup>
-                                <InputError message={errors.community_option} />
+                                <div className='flex flex-col gap-6'>
+                                    <div className='grid gap-2'>
+                                        <Label>Lingkungan</Label>
+                                        <RadioGroup onValueChange={(value: 'listed' | 'outside') => setData('community_option', value)} value={data.community_option}>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="listed" id="listed" /><Label htmlFor="listed">Saya berasal dari paroki St. Antonius Padua Kotabaru</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="outside" id="outside" /><Label htmlFor="outside">Saya dari luar paroki St. Antonius Padua Kotabaru</Label></div>
+                                        </RadioGroup>
+                                        <InputError message={errors.community_option} />
+                                    </div>
 
-                                {data.community_option === 'listed' && (
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="community_id">Select Community</Label>
-                                        <Combobox options={communityOptions} selectedValue={data.community_id} onSelect={(value) => setData('community_id', value)} placeholder="Search community..." />
-                                        <InputError message={errors.community_id} />
-                                    </div>
-                                )}
-                                {data.community_option === 'outside' && (
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="outside_community_address">Nama Lingkungan</Label>
-                                        <Textarea id="outside_community_address" value={data.outside_community_address} onChange={(e) => setData('outside_community_address', e.target.value)} />
-                                        <InputError message={errors.outside_community_address} />
-                                    </div>
-                                )}
+                                    {data.community_option === 'listed' && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="community_id">Pilih Lingkungan</Label>
+                                            <Combobox options={communityOptions} selectedValue={data.community_id} onSelect={(value) => setData('community_id', value)} placeholder="Cari lingkungan..." />
+                                            <InputError message={errors.community_id} />
+                                        </div>
+                                    )}
+                                    {data.community_option === 'outside' && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="outside_community_address">Nama Lingkungan</Label>
+                                            <Textarea id="outside_community_address" value={data.outside_community_address} onChange={(e) => setData('outside_community_address', e.target.value)} />
+                                            <InputError message={errors.outside_community_address} />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
 
@@ -183,7 +211,9 @@ export default function Register({ communities }: RegisterProps) {
                                 {step > 1 && <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>Back</Button>}
                             </div>
                             <div>
-                                {step < 3 && <Button type="button" onClick={() => setStep(step + 1)}>Next</Button>}
+                                {step < 3 && <Button type="button" onClick={() => setStep(step + 1)} disabled={disableNext}>
+                                    Next
+                                </Button>}
                                 {step === 3 && (
                                     <Button type="submit" disabled={processing}>
                                         {processing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
@@ -197,7 +227,7 @@ export default function Register({ communities }: RegisterProps) {
                 <div className="text-center text-sm text-muted-foreground">
                     Sudah punya akun?{' '}
                     <TextLink href={route('login')} tabIndex={5}>
-                        Log in
+                        Masuk
                     </TextLink>
                 </div>
             </form>

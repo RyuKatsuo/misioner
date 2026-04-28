@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'id' => Str::uuid(),
             'name' => 'Ananda Andreas',
             'email' => 'ananda@example.com',
-            'password' => Hash::make('qweqweqwe'), // jangan lupa di-hash
+            'password' => Hash::make('Secret*123'),
             'phone_number' => '081234567890',
             'gender' => 'Male',
             'is_active' => true,

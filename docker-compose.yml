@@ -1,0 +1,33 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Layanan untuk PHP / Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - vite
+
+  # Layanan untuk Vite Dev Server
+  vite:
+    image: 'node:18-alpine'
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "5173:5173" # Port default Vite
+    # Perintah ini akan menginstal dependensi jika node_modules tidak ada, lalu menjalankan server dev
+    command: >
+      sh -c "
+        if [ ! -d "node_modules" ]; then npm install; fi &&
+        npm run dev -- --host
+      "

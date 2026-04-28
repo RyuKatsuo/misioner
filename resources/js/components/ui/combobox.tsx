@@ -52,7 +52,7 @@ export function Combobox({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between"
+                    className="w-full justify-between overflow-hidden"
                 >
                     {selectedValue
                         ? options.find((option) => option.value === selectedValue)?.label
@@ -62,7 +62,7 @@ export function Combobox({
             </PopoverTrigger>
             <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
-                    <CommandInput placeholder={searchPlaceholder} />
+                    <CommandInput placeholder={searchPlaceholder}/>
                     <CommandList>
                         <CommandEmpty>{notFoundText}</CommandEmpty>
                         <CommandGroup>
@@ -74,6 +74,7 @@ export function Combobox({
                                         onSelect(option.value === selectedValue ? "" : option.value)
                                         setOpen(false)
                                     }}
+                                    
                                 >
                                     <Check
                                         className={cn(
