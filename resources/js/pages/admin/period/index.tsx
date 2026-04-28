@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import ManagementLayout from '@/layouts/management-layout';
-import { PaginatedResponse, type BreadcrumbItem, type Period } from '@/types';
+import { PaginatedResponse, SharedData, type BreadcrumbItem, type Period } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table'; // Impor DataTable generik
 import { getColumns } from './partials/columns'; // Impor definisi kolom
@@ -24,6 +24,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function PeriodIndex({ periods, filters }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     const [periodToDelete, setPeriodToDelete] = React.useState<Period | null>(null);
 
     const handleDelete = () => {
@@ -42,13 +45,11 @@ export default function PeriodIndex({ periods, filters }: Props) {
 
     const columns = React.useMemo(
         () => getColumns({
+            permissions: userPermissions,
             onDeleteClick: (user) => setPeriodToDelete(user)
         }),
         []
     );
-
-    const { auth } = usePage<SharedData>().props;
-    const userPermissions = auth.user.permissions;
 
 
     return (

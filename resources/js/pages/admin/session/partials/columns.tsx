@@ -54,7 +54,6 @@ export const getColumns = ({ permissions }: ColumnsProps): ColumnDef<Session>[] 
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
                             {permissions.includes('admin.session.attendance') && (
                                 <DropdownMenuItem asChild>
@@ -62,7 +61,7 @@ export const getColumns = ({ permissions }: ColumnsProps): ColumnDef<Session>[] 
                                 </DropdownMenuItem>
                             )}
                             <DropdownMenuItem asChild>
-                                <Link href={route('admin.session.show', session.id)}>View Details</Link>
+                                <Link href={route('admin.session.show', session.id)}>Detail</Link>
                             </DropdownMenuItem>
                             {permissions.includes('admin.session.edit') && (
                                 <DropdownMenuItem asChild>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedResponse, type Session, type ClassModel } from '@/types';
+import { type BreadcrumbItem, type PaginatedResponse, type Session, type ClassModel, SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './partials/columns';

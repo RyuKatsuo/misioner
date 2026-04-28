@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 // Tipe props baru untuk meneruskan fungsi dari parent
 type ColumnsProps = {
     onDeleteClick: (user: User) => void;
+    permissions: string[];
 }
 
 type Role = {
@@ -20,7 +21,7 @@ type Role = {
 
 
 // Fungsi ini sekarang menerima props
-export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<User>[] => [
+export const getColumns = ({ onDeleteClick, permissions }: ColumnsProps): ColumnDef<User>[] => [
     {
         accessorKey: "name",
         header: "User Name",
@@ -79,7 +80,7 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<User>[] =
         enableHiding: false,
         cell: ({ row }) => {
             const user = row.original;
-
+            console.log('Rendering actions for user:', user);
 
             return (
                 <div className="text-right">
@@ -91,31 +92,34 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<User>[] =
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                                <Link href={route('admin.users.index', user.id)}>Edit User</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                disabled={user.is_active}
-
-                            >
-                                <Link
-                                    href={route('admin.users.send_set_password_link', user.id)}
-                                    method="post"
-                                    as="button"
-                                    className="w-full text-left"
+                            {permissions.includes('admin.user.edit') && (
+                                <DropdownMenuItem asChild>
+                                    <Link href={route('admin.users.edit', user.id)}>Edit</Link>
+                                </DropdownMenuItem>
+                            )}
+                            {permissions.includes('admin.user.send_password') && (
+                                <DropdownMenuItem
+                                    disabled={user.is_active}
+                                    asChild
                                 >
-                                    Send Password Link
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="text-red-600 focus:text-red-600"
-                                onSelect={() => onDeleteClick(user)} // Panggil fungsi dari parent
-                            >
-                                Delete User
-                            </DropdownMenuItem>
+                                    <Link
+                                        href={route('admin.users.send_set_password_link', user.id)}
+                                        method="post"
+                                        as="button"
+                                        className="w-full text-left"
+                                    >
+                                        Send Password Link
+                                    </Link>
+                                </DropdownMenuItem>
+                            )}
+                            {permissions.includes('admin.user.delete') && (
+                                <DropdownMenuItem
+                                    className="text-red-600 focus:text-red-600"
+                                    onSelect={() => onDeleteClick(user)} // Panggil fungsi dari parent
+                                >
+                                    Delete User
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
@@ -85,6 +85,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         ->group(function () {
             Route::get('/users', 'index')->name('index')->middleware('permission:admin.user.view_list');
             Route::get('/users/create', 'create')->name('create')->middleware('permission:admin.user.create');
+            Route::get('/users/{admin}/edit', 'edit')->name('edit')->middleware('permission:admin.user.edit');
+            Route::put('/users/{admin}', 'update')->name('update')->middleware('permission:admin.user.edit');
             Route::post('/users', 'store')->name('store')->middleware('permission:admin.user.create');
             Route::post('/users/{admin}/send-set-password', 'sendSetPasswordLink')->name('send_set_password_link')->middleware('permission:admin.user.send_password');
             Route::delete('/users/{admin}', 'destroy')->name('destroy')->middleware('permission:admin.user.delete');

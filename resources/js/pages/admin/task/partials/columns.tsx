@@ -41,12 +41,11 @@ export const getColumns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Task>[] =
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
                                 <Link href={route('admin.tasks.show', task.id)}>Manage Scores</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href={route('admin.tasks.edit', task.id)}>Edit Task</Link>
+                                <Link href={route('admin.tasks.edit', task.id)}>Edit</Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

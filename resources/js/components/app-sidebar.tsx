@@ -19,11 +19,18 @@ export function AppSidebar() {
 
     const mainNavItems: NavItem[] = [
         {
-            title: 'Management Period & Class',
-            href: route('admin.period.index'),
+            title: 'Management Sessions',
+            href: route('admin.session.index'),
             icon: LayoutGrid,
-            activeUrlPattern: ['admin.period.*', 'admin.class.*'],
-            permission: ['admin.period.view_list', 'admin.class.view_list'],
+            activeUrlPattern: ['admin.session.*', 'admin.attendances.*'],
+            permission: 'admin.session.view_list',
+        },
+        {
+            title: 'Management Task',
+            href: route('admin.tasks.index'),
+            icon: LayoutGrid,
+            activeUrlPattern: ['admin.tasks.*'],
+            permission: 'admin.task.view_list',
         },
         {
             title: 'Management Childrens',
@@ -40,19 +47,11 @@ export function AppSidebar() {
             permission: 'admin.user.view_list',
         },
         {
-            title: 'Management Sessions',
-            href: route('admin.session.index'),
+            title: 'Management Period & Class',
+            href: route('admin.period.index'),
             icon: LayoutGrid,
-            activeUrlPattern: ['admin.session.*', 'admin.attendance.*'],
-            permission: 'admin.session.view_list',
-        },
-        {
-            title: 'Management Task',
-            href: route('admin.tasks.index'),
-            icon: LayoutGrid,
-            activeUrlPattern: ['admin.task.*'],
-            permission: 'admin.task.view_list',
-
+            activeUrlPattern: ['admin.period.*', 'admin.class.*'],
+            permission: ['admin.period.view_list', 'admin.class.view_list'],
         },
     ];
 

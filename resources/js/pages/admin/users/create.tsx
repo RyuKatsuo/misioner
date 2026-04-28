@@ -4,6 +4,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 
+interface Props {
+    roles: any[];
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Users',
@@ -15,12 +19,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Create() {
+
+export default function Create({ roles }: Props) {
+    console.log('Roles in Create Page:', roles);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Register Admin" />
             <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-                <RegisterAdminForm />
+                <RegisterAdminForm type='create' roles={roles}/>
             </div>
         </AppLayout>
     );

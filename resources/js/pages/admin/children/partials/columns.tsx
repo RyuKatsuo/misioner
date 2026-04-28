@@ -76,14 +76,11 @@ export const getColumns = ({ onDeleteClick, onUngraduateClick, pageStatus }: Col
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>
-                                <Link href={route('children.show', child.id)}>Detail Children</Link>
+                            <DropdownMenuItem asChild>
+                                <Link href={route('children.show', child.id)}>Detail</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
                             {pageStatus === 'graduated' && (
                                 <>
-                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         className="text-red-600 focus:text-red-600"
                                         onSelect={() => onUngraduateClick(child)}

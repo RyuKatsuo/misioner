@@ -31,7 +31,10 @@ class UserAndChildrenSeeder extends Seeder
                 'parent_id' => $user->id,
                 'class_id' => $classes->random()->id,
                 'is_active' => true,
-            ]);
+            ])->each(function ($child) {
+                // Generate QR code untuk anak yang aktif
+                $child->generateUniqueQrCode($child);
+            });
 
             // Anak 3: Status Tidak Aktif
             Child::factory()->create([
@@ -46,6 +49,8 @@ class UserAndChildrenSeeder extends Seeder
                 'class_id' => null,
                 'is_active' => false,
             ]);
+
+            $graduatedChild->generateUniqueQrCode($graduatedChild);
 
             Graduate::factory()->create([
                 'children_id' => $graduatedChild->id,

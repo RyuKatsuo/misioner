@@ -1,7 +1,7 @@
 import * as React from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { SharedData, type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { getColumns } from './partials/columns';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function TaskIndex({ tasks, filters }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const userPermissions = auth.user.permissions;
+
     const [taskToDelete, setTaskToDelete] = React.useState<Task | null>(null);
 
     const handleDelete = () => {
@@ -45,12 +48,14 @@ export default function TaskIndex({ tasks, filters }: Props) {
                         <h1 className="text-2xl font-semibold">Tasks</h1>
                         <p className="text-muted-foreground">Manage all tasks for classes.</p>
                     </div>
-                    <Link href={route('admin.tasks.create')}>
-                        <Button>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Create Task
-                        </Button>
-                    </Link>
+                    {userPermissions.includes('admin.task.create') && (
+                        <Link href={route('admin.tasks.create')}>
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Create Task
+                            </Button>
+                        </Link>
+                    )}
                 </div>
                 <DataTable
                     columns={memoizedColumns}

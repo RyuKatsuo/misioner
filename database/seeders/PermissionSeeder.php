@@ -36,6 +36,7 @@ class PermissionSeeder extends Seeder
 
             'admin.user.view_list',
             'admin.user.create',
+            'admin.user.edit',
             'admin.user.send_password',
             'admin.user.delete',
 
@@ -81,6 +82,7 @@ class PermissionSeeder extends Seeder
 
             'admin.user.view_list',
             'admin.user.create',
+            'admin.user.edit',
             'admin.user.send_password',
             'admin.user.delete',
 

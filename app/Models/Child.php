@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Child extends Model
 {
     use HasFactory;
+
     protected $table = 'childrens';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -91,6 +95,25 @@ class Child extends Model
 
         // Perbarui kolom total_score dan simpan
         $this->total_score = $newTotalScore;
+        $this->save();
+    }
+
+    public function generateUniqueQrCode()
+    {
+        do {
+            $randomNumber = random_int(10000000, 99999999);
+            $qrCodeValue = (string) $randomNumber;
+        } while (self::where('qr_code', $qrCodeValue)->exists());
+
+        $filePath = storage_path('app/public/qrcodes/'.$qrCodeValue.'.svg');
+
+        File::ensureDirectoryExists(dirname($filePath));
+
+        QrCode::format('svg')->size(250)->generate($qrCodeValue, $filePath);
+
+        $this->qr_code = $qrCodeValue;
+        $this->qr_url = 'qrcodes/'.$qrCodeValue.'.svg';
+
         $this->save();
     }
 }
