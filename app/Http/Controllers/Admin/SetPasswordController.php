@@ -38,6 +38,6 @@ class SetPasswordController extends Controller
             'is_active' => true
         ]);
 
-        return redirect()->route('login')->with('status', 'Password set successfully. You can now log in.');
+        return redirect()->route('admin.login.form')->with('status', 'Password set successfully. You can now log in.');
     }
 }

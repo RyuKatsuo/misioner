@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\PhoneNumberHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\Community;
@@ -42,7 +43,7 @@ class RegisteredUserController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'phone_number' => $data['phone_number'],
+            'phone_number' => PhoneNumberHelper::format($data['phone_number']),
             'gender' => $data['gender'],
             'date_of_birth' => $data['date_of_birth'],
             'community_id' => $data['community_option'] === 'listed' ? $data['community_id'] : null,

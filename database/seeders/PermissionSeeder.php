@@ -93,10 +93,8 @@ class PermissionSeeder extends Seeder
             'admin.children.view_list',
             'children.show',
 
-
-
-            'admin.task.view_list',
-            'admin.task.show',
+            // 'admin.task.view_list',
+            // 'admin.task.show',
 
         ];
 
@@ -107,7 +105,7 @@ class PermissionSeeder extends Seeder
             'admin.class.view_list',
             'admin.class.show',
 
-            'admin.user.view_list',
+            // 'admin.user.view_list',
 
             'admin.session.view_list',
             'admin.session.create',

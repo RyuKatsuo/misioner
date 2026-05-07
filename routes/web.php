@@ -22,8 +22,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
-
-        return Inertia::render('dashboard');
+        return redirect()->route('children.index');
+        // return Inertia::render('dashboard');
     })->name('dashboard');
 });
 
@@ -126,7 +126,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
 Route::controller(ChildController::class)->group(function() {
     Route::get('/children/create', 'create')->name('children.create')->middleware(['auth:web', 'permission:children.create']);
     Route::post('/children', 'store')->name('children.store')->middleware(['auth:web', 'permission:children.create']);
-    Route::get('/my-children', 'index')->name('children.index')->middleware('auth:web', 'permission:children.view_list');
+    Route::get('/my-children', 'index')->name('children.index')->middleware('auth:web', 'permission:children.view_list', 'verified');
     Route::get('/childrens/{child}', 'show')->name('children.show')->middleware( 'auth:admin,web','permission:children.show');
     Route::get('/childrens/{child}/id-card', 'downloadIdCard')->name('children.id_card');
 

@@ -38,7 +38,7 @@ class SetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.set-password',
+            markdown: 'emails.set-password',
         );
     }
 
