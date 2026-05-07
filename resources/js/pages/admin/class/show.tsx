@@ -148,7 +148,7 @@ export default function ShowClass({ class: classData }: Props) {
                                         <TableRow key={child.id}>
                                             <TableCell className="font-medium">{child.name}</TableCell>
                                             <TableCell>
-                                                <p>{child.attendance_count}</p>
+                                                <p>{child.attendance_count_in_class}</p>
                                             </TableCell>
                                             <TableCell>
                                                 <p>{child.total_score}</p>

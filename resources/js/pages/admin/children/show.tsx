@@ -28,6 +28,15 @@ export default function ShowChild({ child }: Props) {
         { title: 'Details', href: '#' },
     ];
 
+    let childrenStatus: string;
+    if(child.graduate){
+       childrenStatus = "Graduate" 
+    } else{
+        childrenStatus = child.is_active ? "Active" : "Inactive"
+    }
+    // console.log(child);
+    
+
     return (
 
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -55,7 +64,13 @@ export default function ShowChild({ child }: Props) {
                             <p><strong>Period:</strong> {child?.class_model?.period?.name ?? 'N/A'}</p>
                             <p><strong>Gender:</strong> {child.gender}</p>
                             <p><strong>Date of Birth:</strong> {new Date(child.date_of_birth).toLocaleDateString()}</p>
-                            <p><strong>Status:</strong> <Badge variant={child.is_active ? 'default' : 'secondary'}>{child.is_active ? 'Active' : 'Inactive'}</Badge></p>
+                            <p><strong>Status:</strong> 
+                                <Badge variant={child.is_active ? 'default' : 'secondary'}>
+                                    {
+                                        childrenStatus
+                                    }
+                                </Badge>
+                            </p>
                             <div className="rounded-md border bg-muted/50 p-3">
                                 <p><strong>Special Needs:</strong>
                                     <Badge variant={child.special_needs_status ? 'destructive' : 'outline'} className="ml-2">
@@ -86,7 +101,7 @@ export default function ShowChild({ child }: Props) {
                         <CardContent className="grid grid-cols-2 gap-4">
                             <div className="rounded-lg border p-4 text-center">
                                 <p className="text-sm text-muted-foreground">Attendance</p>
-                                <p className="text-2xl font-bold">{child.attendance_count}</p>
+                                <p className="text-2xl font-bold">{child.attendance_count_in_class}</p>
                             </div>
                             <div className="rounded-lg border p-4 text-center">
                                 <p className="text-sm text-muted-foreground">Total Score</p>
