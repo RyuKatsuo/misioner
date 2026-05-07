@@ -25,13 +25,13 @@ export function AppSidebar() {
             activeUrlPattern: ['admin.session.*', 'admin.attendances.*'],
             permission: 'admin.session.view_list',
         },
-        {
-            title: 'Management Task',
-            href: route('admin.tasks.index'),
-            icon: LayoutGrid,
-            activeUrlPattern: ['admin.tasks.*'],
-            permission: 'admin.task.view_list',
-        },
+        // {
+        //     title: 'Management Task',
+        //     href: route('admin.tasks.index'),
+        //     icon: LayoutGrid,
+        //     activeUrlPattern: ['admin.tasks.*'],
+        //     permission: 'admin.task.view_list',
+        // },
         {
             title: 'Management Childrens',
             href: route('admin.children.index'),
@@ -92,9 +92,9 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <div>
                                 <AppLogo />
-                            </Link>
+                            </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

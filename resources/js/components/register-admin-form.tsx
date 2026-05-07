@@ -142,7 +142,12 @@ export default function RegisterAdminForm({ type, data, roles }: RegisterAdminPr
                                     type="tel"
                                     required
                                     value={formData.phone_number}
-                                    onChange={(e) => setData('phone_number', e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value) && value.length <= 15) {
+                                            setData('phone_number', value);
+                                        }
+                                    }}
                                     disabled={processing}
                                     placeholder="628xxxxx"
                                 />

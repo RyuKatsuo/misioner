@@ -63,11 +63,11 @@ export const getColumns = ({ permissions }: ColumnsProps): ColumnDef<Session>[] 
                             <DropdownMenuItem asChild>
                                 <Link href={route('admin.session.show', session.id)}>Detail</Link>
                             </DropdownMenuItem>
-                            {permissions.includes('admin.session.edit') && (
+                            {/* {permissions.includes('admin.session.edit') && (
                                 <DropdownMenuItem asChild>
                                     <Link href={route('admin.session.edit', session.id)}>Update Status</Link>
                                 </DropdownMenuItem>
-                            )}
+                            )} */}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

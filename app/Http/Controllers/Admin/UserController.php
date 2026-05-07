@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\PhoneNumberHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\SetPasswordMail;
 use App\Models\Admin;
@@ -66,12 +67,14 @@ class UserController extends Controller
             'gender' => 'required|string'
         ]);
 
+        // if ($request->phone_number && )
+
         $admin = Admin::create([
             'name' => $request->name,
             'email' => $request->email,
             'is_active' => false,
             'gender' => $request->gender,
-            'phone_number' => $request->phone_number
+            'phone_number' => PhoneNumberHelper::format($request->phone_number)
         ]);
 
         if ($request->filled('role')) {

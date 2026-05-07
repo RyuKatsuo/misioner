@@ -23,7 +23,7 @@ export default function ShowChild({ child }: Props) {
     const { auth } = usePage<SharedData>().props;
 
     const breadcrumbs: BreadcrumbItem[] = [
-        
+
         { title: 'Children', href: auth.user?.role.includes('Parent') ? route('children.index') : route('admin.children.index') },
         { title: 'Details', href: '#' },
     ];
@@ -83,16 +83,18 @@ export default function ShowChild({ child }: Props) {
                                     </p>
                                 )}
                             </div>
-                            <Button asChild variant="secondary" size="sm">
-                                <a href={route('children.id_card', child.id)}>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    ID Card
-                                </a>
-                            </Button>
+                            {child.qr_code && (
+                                <Button asChild variant="secondary" size="sm">
+                                    <a href={route('children.id_card', child.id)}>
+                                        <Download className="mr-2 h-4 w-4" />
+                                        ID Card
+                                    </a>
+                                </Button>
+                            )}
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    {/* <Card>
                         <CardHeader>
                             <CardTitle>Summary</CardTitle>
                         </CardHeader>
@@ -106,7 +108,7 @@ export default function ShowChild({ child }: Props) {
                                 <p className="text-2xl font-bold">{child.total_score}</p>
                             </div>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
 
                 {/* Kolom Kanan: Riwayat Kehadiran dan Tugas */}
@@ -141,7 +143,7 @@ export default function ShowChild({ child }: Props) {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    {/* <Card>
                         <CardHeader>
                             <CardTitle>Task Scores</CardTitle>
                         </CardHeader>
@@ -171,7 +173,7 @@ export default function ShowChild({ child }: Props) {
                                 </TableBody>
                             </Table>
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
             </div>
         </AppLayout>

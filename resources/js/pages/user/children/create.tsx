@@ -57,11 +57,11 @@ export default function CreateChild() {
                                 avatarPreview={avatarPreview}
                                 onAvatarChange={handleAvatarChange}
                             />
-                            {progress && (
+                            {/* {progress && (
                                 <progress value={progress.percentage} max="100" className="w-full mt-4">
                                     {progress.percentage}%
                                 </progress>
-                            )}
+                            )} */}
                         </CardContent>
                     </Card>
                     <div className="mt-6 flex items-center gap-4">

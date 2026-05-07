@@ -112,10 +112,10 @@ class ChildController extends Controller
     {
         $child->load('classModel');
 
-        $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url) : null;
-        $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url) : null;
-
-
+        $qrCodePath = $child->qr_url ? Storage::disk('public')->path($child->qr_url): null;
+        $avatarPath = $child->avatar_url ? Storage::disk('public')->path($child->avatar_url): Storage::disk('public')->path('avatars/default.png');
+        
+        
 
         $data = [
             'child' => $child,
