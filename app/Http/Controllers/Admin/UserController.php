@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\PhoneNumberHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Services\BrevoMailService;
 use App\Mail\SetPasswordMail;
 use App\Models\Admin;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -18,12 +18,11 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-
     public function index(Request $request): Response
     {
         $users = Admin::query()
             ->with('roles')
-            ->whereDoesntHave('roles', function($query) {
+            ->whereDoesntHave('roles', function ($query) {
                 $query->where('name', 'Superadmin');
             })
             ->when($request->input('search'), function ($query, $search) {
@@ -35,7 +34,7 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
-            'filters' => $request->only(['search'])
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -47,8 +46,9 @@ class UserController extends Controller
         $roles = Role::where('name', '!=', 'Superadmin')
             ->where('name', '!=', 'Parent')
             ->get();
+
         return Inertia::render('admin/users/create', [
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -61,10 +61,10 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . Admin::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.Admin::class,
             'role' => 'required|string|exists:roles,name|not_in:Superadmin,Parent',
             'phone_number' => 'required|string|max:15',
-            'gender' => 'required|string'
+            'gender' => 'required|string',
         ]);
 
         // if ($request->phone_number && )
@@ -74,7 +74,7 @@ class UserController extends Controller
             'email' => $request->email,
             'is_active' => false,
             'gender' => $request->gender,
-            'phone_number' => PhoneNumberHelper::format($request->phone_number)
+            'phone_number' => PhoneNumberHelper::format($request->phone_number),
         ]);
 
         if ($request->filled('role')) {
@@ -94,7 +94,7 @@ class UserController extends Controller
 
         return Inertia::render('admin/users/edit', [
             'admin' => $admin->load('roles'),
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -102,9 +102,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . Admin::class . ',email,' . $admin->id,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.Admin::class.',email,'.$admin->id,
             'role' => 'required|string|exists:roles,name|not_in:Superadmin,Parent',
-            'phone_number' => 'required|string|max:15'
+            'phone_number' => 'required|string|max:15',
         ]);
 
         $admin->update($request->only(['name', 'email', 'phone_number']));
@@ -120,6 +120,7 @@ class UserController extends Controller
     {
         try {
             $admin->delete();
+
             return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
         } catch (\Throwable $th) {
             return redirect()->route('admin.users.index')->with('error', 'Failed to delete user.');
@@ -129,8 +130,8 @@ class UserController extends Controller
     /**
      * Send set password link to the user.
      *
-     * @param User $user
-     * @param bool $returnResponse // Tambahkan parameter untuk mengontrol output
+     * @param  User  $user
+     * @param  bool  $returnResponse  // Tambahkan parameter untuk mengontrol output
      * @return RedirectResponse|void
      */
     public function sendSetPasswordLink(Admin $admin, $returnResponse = true)
@@ -147,7 +148,14 @@ class UserController extends Controller
         );
 
         // 2. Kirim email ke pengguna
-        Mail::to($admin->email)->send(new SetPasswordMail($link));
+        // if (env('APP_ENV') === 'production') {
+        //     $mailService = new BrevoMailService;
+        //     $mailService->send($admin->email, 'Set Password', view('emails.set-password', ['link' => $link])->render());
+        // } else {
+        //     Mail::to($admin->email)->send(new SetPasswordMail($link));
+        // }
+        $mailService = new BrevoMailService;
+        $mailService->send($admin->email, 'Set Password', view('emails.set-password', ['link' => $link])->render());
 
         // 3. Kembalikan dengan pesan sukses
         if ($returnResponse) {
