@@ -56,7 +56,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="email@example.com"
                             />
-                            <InputError message={errors.email} />
+                            <InputError message={errors.email?.includes('credentials') ? 'Email atau password salah.' : errors.email} />
                         </div>
 
                         <div className="grid gap-2">

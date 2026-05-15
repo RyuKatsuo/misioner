@@ -45,7 +45,7 @@ class AttendanceController extends Controller
         $child = Child::where('qr_code', $validated['qr_code'])->first();
 
         if (!$child) {
-            return back()->with('error', 'QR Code not found in records.');
+            return back()->with('error', 'Gagal mencatat kehadiran, QR Code tidak ditemukan.');
         }
 
         if ($child->class_id !== $session->class_id) {
@@ -75,7 +75,7 @@ class AttendanceController extends Controller
             $child->attendance_count = $newAttendanceCount;
             $child->save();
 
-            return back()->with('success', "{$child->name}! (Status: {$newStatus})");
+            return back()->with('success', "Kehadiran berhasil dicatat {$child->name}! (Status: {$newStatus})");
         }
 
         $errorMessage = $attendance ? 'Child already marked present or late.' : 'This child is not enrolled in this session.';
